@@ -22,7 +22,10 @@ StartState.prototype = {
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.gravity.y = 250;
         game.stage.backgroundColor = "#6888ff";
-        this.map = new Map();
+        this.map = new Map(game);
+        this.PrizeBox = new PrizeBox(game);
+        this.PrizeBox.createPrizeBox();
+
         this.labels = new Labels(game, this.map);
   
         this.mario = new Mario(30, 200, game);
