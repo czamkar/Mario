@@ -26,19 +26,23 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 250;
     },
     update: function () {
-        this.mario.controls();
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.mario.sprite,  this.PrizeBoxGroup, this.d, null, this);
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.c, null, this);
        
         if (this.jumpButton.isDown && game.time.now > this.timerJump && this.mario.sprite.body.blocked.down) {
-         
+            this.mario.sprite.frameName = "mario_jump";
             this.mario.sprite.body.velocity.y = -150;
             this.timerJump = game.time.now + 750;
         }
+        if(!this.mario.sprite.body.blocked.down){
+            this.mario.sprite.frameName = "mario_jump";
+        }else{
+            this.mario.controls();
+        }
     },
     d: function(a,b){
-        console.log('tak');
+        console.log(b);
     },
     c: function (a, b) {
         console.log(this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).worldX, this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).worldY);
@@ -58,6 +62,6 @@ PlayState.prototype = {
     },
     render: function () {
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
-        // game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        game.debug.bodyInfo(this.mario.sprite, 16, 32);
     }
 }
