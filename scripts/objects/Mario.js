@@ -15,10 +15,10 @@ var Mario = function (x, y, game) {
 
     this.sprite.body.velocity.x = 0;
     this.sprite.body.velocity.y = 0;
+
     // this.sprite.body.bounce.y = 0.2;
 }
 Mario.prototype.controls = function (value) {
-    console.log(value);
     if (this.cursors.right.isDown) {
         this.sprite.body.velocity.x = 100;
         if (this.facing != 'right') {

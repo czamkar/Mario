@@ -10,6 +10,7 @@ StartState.prototype = {
         game.load.tilemap('map', 'assets/map/map.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.atlas('sMario', 'assets/images/mario/smallMario.png', 'assets/images/mario/smallMario.json');
         game.load.atlas('mapElement', 'assets/map/tiles.png', 'assets/map/tiles.json');
+        game.load.atlas('enemies', 'assets/images/enemies/enemies.png', 'assets/images/enemies/enemies.json');
         //6888ff  kolor nieba
     },
     create: function () {
