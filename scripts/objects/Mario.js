@@ -5,7 +5,8 @@ var Mario = function (x, y, game) {
     this.sprite.animations.add('jump', Phaser.Animation.generateFrameNames('mario_jump', 0, 3, '', 2), 30, true);
     //this.sprite.animations.add('sMario', Phaser.Animation.generateFrameNames('Bman_S_f', 0, 7, '', 2), 30, true);
     this.sprite.anchor.setTo(0.5);
-
+    this.sprite.objectMario = this;
+    this.size = false;
     this.facing = "idle";
 
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
@@ -15,6 +16,9 @@ var Mario = function (x, y, game) {
 
     this.sprite.body.velocity.x = 0;
     this.sprite.body.velocity.y = 0;
+
+    this.sprite.body.setSize(12,16,2,0);
+
 
     // this.sprite.body.bounce.y = 0.2;
 }

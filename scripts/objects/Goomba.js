@@ -7,7 +7,7 @@ var Goomba = function (x, y,game) {
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
     
     this.sprite.body.allowGravity  = false;
-	this.sprite.body.immovable = true;
+//	this.sprite.body.immovable = true;
     this.sprite.body.velocity.x = 50 ;
     this.sprite.body.bounce.x = 1;
 }

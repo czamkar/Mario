@@ -7,6 +7,15 @@ PlayState.prototype = {
         game.stage.backgroundColor = "#6888ff";
         this.map = new Map(game);
         this.mushrooms = game.add.group();
+
+        this.walls = game.add.group();
+        this.walls.enableBody = true;
+        //createFromObjects(name, gid, key, frame, exists, autoCull, group, CustomClass, adjustY)
+ 
+        
+        this.map.map.createFromObjects('walls', 8, 'mapElement', 'block_01', true, false,  this.walls);
+    
+        this.walls.forEach(function(a){            a.body.allowGravity  = false;   a.body.immovable = true;        },this);
         this.goombas = game.add.group();
         this.PrizeBox = new PrizeBox(game);
         this.PrizeBoxGroup = game.add.group();
@@ -19,7 +28,7 @@ PlayState.prototype = {
         this.gomb = new Goomba(32 * 16, 200, game);
         this.goombas.add(this.gomb.sprite);
 
-
+        console.log(this.walls);
 
         this.labels.time.text = "400";
         this.timeTotal = 400;
@@ -36,15 +45,17 @@ PlayState.prototype = {
     },
     update: function () {
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
+        game.physics.arcade.collide(this.mario.sprite, this.walls, this.marioWallHit);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.goombas);
-        game.physics.arcade.collide(this.mario.sprite, this.goombas, this.bum);
+        game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit);
         game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.d, null, this);
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.c, null, this);
         if (this.mushroom) {
             if (this.mushroom.alive) {
                 game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
+                game.physics.arcade.collide(this.mushrooms, this.walls);
             }
             game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['ground']);
             game.physics.arcade.overlap(this.mario.sprite, this.mushrooms, this.marioMushroomHit, null, this);
@@ -61,27 +72,47 @@ PlayState.prototype = {
             this.mario.controls("");
         }
     },
+    marioWallHit: function (a, b) {
+        console.log('wall');
+        var tween = game.add.tween(b).to({
+            y: b.y - 4
+        }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
+    },
     marioMushroomHit: function (a, b) {
         a.scale.y = 1.7;
         this.mushroom.alive = false;
         b.body.velocity.x = 0;
         b.kill();
     },
-    bum: function (a, b) {
+    marioGommbaHit: function (a, b) {
         if (a.body.touching.down) {
+            b.body.bounce.x = 1;
             b.body.velocity.x = 0;
             b.body.destroy();
             b.animations.stop();
             b.frameName = "goomba_dead";
+            game.time.events.add(Phaser.Timer.SECOND * 1, function() {console.log("timer");b.kill();}, this);
 
         }
         if (a.body.touching.right || a.body.touching.left) {
+            if(a.scale.y > 1){
+                a.scale.y = 1;
+                if(b.body.deltaX>0 ){
+
+                    b.body.velocity.x = 50;
+                }else{
+                    
+                b.body.velocity.x = -50;
+                }
+            }else{
             game.level.lives--;
-            game.state.start("Info");
+            //game.state.start("Info");
+            }
         }
     },
     d: function (a, b) {
         b.animations.stop();
+        console.log("prize");
         b.frameName = 'prize_box_hit';
         if (b.x !== 336) {
             var coin = game.add.sprite(b.x + 2, b.y - 16, 'mapElement', 'prize_box_coin_03');
@@ -160,7 +191,10 @@ PlayState.prototype = {
 
     },
     render: function () {
+        // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
-        game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        game.debug.body(this.mario.sprite);
+        // game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        // game.debug.bodyInfo(this.goombas.children[0], 16, 32);
     }
 }
