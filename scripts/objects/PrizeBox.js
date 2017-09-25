@@ -31,7 +31,7 @@ PrizeBox.prototype.createPrizeBox = function () {
             game.physics.enable(box, Phaser.Physics.ARCADE);
             box.body.immovable = true;
             box.body.allowGravity  = false;
-            box.body.setSize(10,3,3,13);
+            box.body.setSize(16,16,0,0);
         game.state.states.Play.PrizeBoxGroup.add(box);
         }
     }
