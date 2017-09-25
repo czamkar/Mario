@@ -23,6 +23,7 @@ PlayState.prototype = {
         this.goombas = game.add.group();
         this.PrizeBox = new PrizeBox(game);
         this.PrizeBoxGroup = game.add.group();
+        this.PrizeBoxGroup.enableBody = true;
         this.PrizeBox.createPrizeBox();
         this.labels = new Labels(game, this.map);
         this.mario = new Mario(30, 200, game);
@@ -55,11 +56,12 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.goombas);
         game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit);
         game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.d, null, this);
-        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.c, null, this);
+        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide']);
         if (this.mushroom) {
             if (this.mushroom.alive) {
                 game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
                 game.physics.arcade.collide(this.mushrooms, this.walls);
+                game.physics.arcade.collide(this.mushrooms, this.PrizeBoxGroup, this.test, null, this);
             }
             game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['ground']);
             game.physics.arcade.overlap(this.mario.sprite, this.mushrooms, this.marioMushroomHit, null, this);
@@ -79,17 +81,26 @@ PlayState.prototype = {
             this.mario.controls("");
         }
     },
+    test: function () {
+        console.log("TEST");
+    },
     marioWallHit: function (a, b) {
-        if (a.body.touching.up && b.body.touching.down) {
+        console.log(a.objectMario);
+        console.log(b);
+        if (a.body.touching.up && b.body.touching.down && !a.objectMario.size) {
             var tween = game.add.tween(b).to({
                 y: b.y - 4
             }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
+        } else if (a.body.touching.up && b.body.touching.down && a.objectMario.size) {
+            b.destroy();
         }
     },
     marioMushroomHit: function (a, b) {
         a.scale.y = 1.7;
+        a.objectMario.size = true;
         this.mushroom.alive = false;
         b.body.velocity.x = 0;
+        b.body.destroy();
         b.kill();
     },
     marioGommbaHit: function (a, b) {
@@ -123,6 +134,10 @@ PlayState.prototype = {
     },
     d: function (a, b) {
         if (a.body.touching.up && b.body.touching.down) {
+            console.log('----------------------------');
+            console.log(a);
+            console.log(b);
+            console.log('----------------------------');
             b.animations.stop();
             console.log("prize");
             b.frameName = 'prize_box_hit';
@@ -165,7 +180,7 @@ PlayState.prototype = {
                 }, 200, Phaser.Easing.Out, true, 0, 0, false);
                 tween2.onComplete.add(function () {
                     this.mushroom.alive = true;
-                    this.mushroom.body.velocity.x = 50;
+                    this.mushroom.body.velocity.x = 30;
                 }, this, true);
 
 
@@ -185,17 +200,6 @@ PlayState.prototype = {
         }
         // b.y -=10;
 
-    },
-    c: function (a, b) {
-        // console.log(this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).worldX, this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).worldY);
-        // console.log(this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).index);
-        if (this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).index === 8) {
-            if (a.body.blocked.up)
-                this.map.map.removeTile(b.x, b.y, this.map.mapLayers['collide']);
-        } else if (this.map.map.getTile(b.x, b.y, this.map.mapLayers['collide']).index === 43) {
-            if (a.body.blocked.up)
-                console.log('prize');
-        }
     },
     updateCounter: function () {
         this.timeTotal--;
