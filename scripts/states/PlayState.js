@@ -162,7 +162,7 @@ PlayState.prototype = {
                 }
             } else {
                 game.level.lives--;
-                //game.state.start("Info");
+                game.state.start("Info");
             }
         }
     },
