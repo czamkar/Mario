@@ -3,7 +3,7 @@ var Mario = function (x, y, game) {
     this.sprite = game.add.sprite(x, y, 'mario', 'mario_idle_01');
     this.sprite.animations.add('right', Phaser.Animation.generateFrameNames('mario_walk_', 0, 3, '', 2), 30, true);
     // this.sprite.animations.add('jump', Phaser.Animation.generateFrameNames('mario_jump', 0, 3, '', 2), 30, true);
-    this.sprite.animations.add('grow', Phaser.Animation.generateFrameNames('mario_idle_', 0, 2, '', 2), 15, true);
+    this.sprite.animations.add('grow', ['mario_idle_01','mario_idle_01','mario_idle_02','mario_idle_01','mario_idle_02','mario_idle_02','mario_idle_01','mario_idle_02'], 15, true);
 
     //this.sprite.animations.add('sMario', Phaser.Animation.generateFrameNames('Bman_S_f', 0, 7, '', 2), 30, true);
     this.sprite.anchor.setTo(0.5);
@@ -59,6 +59,11 @@ Mario.prototype.controls = function (value) {
 Mario.prototype.growUp = function () {
 
     this.sprite.animations.play('grow', 15, true);
+
+
+
+
+    
     this.size = true;
 
 }
