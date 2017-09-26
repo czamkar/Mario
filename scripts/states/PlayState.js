@@ -92,6 +92,40 @@ PlayState.prototype = {
                 y: b.y - 4
             }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
         } else if (a.body.touching.up && b.body.touching.down && a.objectMario.size) {
+            var wallCrash1 = game.add.sprite(b.x, b.y, 'wall2');
+            var wallCrash2 = game.add.sprite(b.x, b.y, 'wall1');
+            var wallCrash3 = game.add.sprite(b.x, b.y, 'wall2');
+            var wallCrash4 = game.add.sprite(b.x, b.y, 'wall1');
+            
+            // wallCrash1.scale.setTo(0.5);
+            var tween2 = game.add.tween(wallCrash1).to( { angle: -180, y: wallCrash1.y-30, x: wallCrash1.x-15 }, 300, Phaser.Easing.Linear.None, true);
+            tween2.onComplete.add(function () {
+                var tween = game.add.tween(wallCrash1).to( { angle: -360,y: wallCrash1.y+120,x: wallCrash1.x-30}, 700, Phaser.Easing.Linear.None, true);
+                tween.onComplete.add(function () {
+                    wallCrash1.kill();
+                }, this, true);
+            }, this, true);
+            var tween2 = game.add.tween(wallCrash3).to( { angle: -180, y: wallCrash3.y-10, x: wallCrash3.x-15 }, 300, Phaser.Easing.Linear.None, true);
+            tween2.onComplete.add(function () {
+                var tween = game.add.tween(wallCrash3).to( { angle: -360,y: wallCrash3.y+120,x: wallCrash3.x-30}, 700, Phaser.Easing.Linear.None, true);
+                tween.onComplete.add(function () {
+                    wallCrash3.kill();
+                }, this, true);
+            }, this, true);
+            var tween2 = game.add.tween(wallCrash2).to( { angle: 180, y: wallCrash2.y-30, x: wallCrash2.x+15 }, 300, Phaser.Easing.Linear.None, true);
+            tween2.onComplete.add(function () {
+                var tween = game.add.tween(wallCrash2).to( { angle:90,y: wallCrash2.y+120,x: wallCrash2.x+45}, 700, Phaser.Easing.Linear.None, true);
+                tween.onComplete.add(function () {
+                    wallCrash2.kill();
+                }, this, true);
+            }, this, true);
+            var tween2 = game.add.tween(wallCrash4).to( { angle: 180, y: wallCrash4.y-10, x: wallCrash4.x+15 }, 300, Phaser.Easing.Linear.None, true);
+            tween2.onComplete.add(function () {
+                var tween = game.add.tween(wallCrash4).to( { angle:90,y: wallCrash4.y+120,x: wallCrash4.x+45}, 700, Phaser.Easing.Linear.None, true);
+                tween.onComplete.add(function () {
+                    wallCrash4.kill();
+                }, this, true);
+            }, this, true);
             b.destroy();
         }
     },
@@ -219,7 +253,7 @@ PlayState.prototype = {
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         game.debug.body(this.mario.sprite);
-        game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        // game.debug.bodyInfo(this.mario.sprite, 16, 32);
         // game.debug.bodyInfo(this.walls.children[0], 16, 32);
         // game.debug.bodyInfo(this.goombas.children[0], 16, 32);
     }

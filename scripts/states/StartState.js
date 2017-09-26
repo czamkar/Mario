@@ -11,6 +11,8 @@ StartState.prototype = {
         game.load.atlas('sMario', 'assets/images/mario/smallMario.png', 'assets/images/mario/smallMario.json');
         game.load.atlas('mapElement', 'assets/map/tiles.png', 'assets/map/tiles.json');
         game.load.atlas('enemies', 'assets/images/enemies/enemies.png', 'assets/images/enemies/enemies.json');
+        game.load.image('wall1', 'assets/images/world/wall_crash_01.png');
+        game.load.image('wall2', 'assets/images/world/wall_crash_02.png');
         //6888ff  kolor nieba
     },
     create: function () {
