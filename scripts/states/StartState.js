@@ -8,9 +8,9 @@ StartState.prototype = {
         game.load.bitmapFont('marioFont', 'assets/font/mario_font.png', 'assets/font/mario_font.fnt');
         game.load.image('tiles', 'assets/map/tiles.png');
         game.load.tilemap('map', 'assets/map/map.json', null, Phaser.Tilemap.TILED_JSON);
-        game.load.atlas('sMario', 'assets/images/mario/smallMario.png', 'assets/images/mario/smallMario.json');
         game.load.atlas('mapElement', 'assets/map/tiles.png', 'assets/map/tiles.json');
         game.load.atlas('enemies', 'assets/images/enemies/enemies.png', 'assets/images/enemies/enemies.json');
+        game.load.atlas('mario', 'assets/images/mario/mario.png', 'assets/images/mario/mario.json');
         game.load.image('wall1', 'assets/images/world/wall_crash_01.png');
         game.load.image('wall2', 'assets/images/world/wall_crash_02.png');
         //6888ff  kolor nieba
@@ -22,6 +22,8 @@ StartState.prototype = {
             coins: 0,
            
         }
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        game.scale.windowConstraints.bottom = "layout";
         game.physics.startSystem(Phaser.Physics.ARCADE);
         game.physics.arcade.gravity.y = 250;
         game.stage.backgroundColor = "#6888ff";

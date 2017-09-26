@@ -134,8 +134,8 @@ PlayState.prototype = {
         }
     },
     marioMushroomHit: function (a, b) {
-        a.scale.y = 1.7;
-        a.objectMario.size = true;
+      
+        a.objectMario.growUp();
         this.mushroom.alive = false;
         b.body.velocity.x = 0;
         b.body.destroy();
@@ -256,6 +256,7 @@ PlayState.prototype = {
 
     },
     render: function () {
+        game.debug.cameraInfo(game.camera, 32, 32);
         if (this.mushroom) {
             game.debug.body(this.mushroom);
         }

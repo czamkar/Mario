@@ -1,8 +1,10 @@
 var Mario = function (x, y, game) {
 
-    this.sprite = game.add.sprite(x, y, 'sMario', 'mario_idle');
+    this.sprite = game.add.sprite(x, y, 'mario', 'mario_idle_01');
     this.sprite.animations.add('right', Phaser.Animation.generateFrameNames('mario_walk_', 0, 3, '', 2), 30, true);
-    this.sprite.animations.add('jump', Phaser.Animation.generateFrameNames('mario_jump', 0, 3, '', 2), 30, true);
+    // this.sprite.animations.add('jump', Phaser.Animation.generateFrameNames('mario_jump', 0, 3, '', 2), 30, true);
+    this.sprite.animations.add('grow', Phaser.Animation.generateFrameNames('mario_idle_', 0, 2, '', 2), 15, true);
+
     //this.sprite.animations.add('sMario', Phaser.Animation.generateFrameNames('Bman_S_f', 0, 7, '', 2), 30, true);
     this.sprite.anchor.setTo(0.5);
     this.sprite.objectMario = this;
@@ -17,7 +19,7 @@ var Mario = function (x, y, game) {
     this.sprite.body.velocity.x = 0;
     this.sprite.body.velocity.y = 0;
 
-    this.sprite.body.setSize(12,16,2,0);
+    this.sprite.body.setSize(12, 16, 2, 0);
 
 
     // this.sprite.body.bounce.y = 0.2;
@@ -27,15 +29,17 @@ Mario.prototype.controls = function (value) {
         this.sprite.body.velocity.x = 100;
         if (this.facing != 'right') {
             this.sprite.scale.x = 1;
-            if(value != "jump")
+            if (value != "jump")
+                this.sprite.frameName = "mario_walk_01";
             this.sprite.animations.play('right');
             this.facing = 'right';
         }
-    } else if (this.cursors.left.isDown ) {
+    } else if (this.cursors.left.isDown) {
         this.sprite.body.velocity.x = -100;
         if (this.facing != 'left') {
             this.sprite.scale.x = -1;
-            if(value != "jump")
+            if (value != "jump")
+                this.sprite.frameName = "mario_walk_01";
             this.sprite.animations.play('right');
 
             this.facing = 'left';
@@ -43,12 +47,18 @@ Mario.prototype.controls = function (value) {
     } else {
         if (this.facing != 'idle') {
             this.sprite.animations.stop();
-           
+
             this.sprite.body.velocity.x = 0;
         }
-        if(value != "jump")
-      this.sprite.frameName = "mario_idle";
+        if (value != "jump")
+            this.sprite.frameName = "mario_idle_01";
         this.facing = 'idle';
 
     }
+}
+Mario.prototype.growUp = function () {
+
+    this.sprite.animations.play('grow', 15, true);
+    this.size = true;
+
 }
