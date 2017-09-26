@@ -56,7 +56,7 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.goombas);
         game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit);
         game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.d, null, this);
-        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide']);
+        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
         if (this.mushroom) {
             if (this.mushroom.alive) {
                 game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
@@ -81,8 +81,8 @@ PlayState.prototype = {
             this.mario.controls("");
         }
     },
-    test: function () {
-        console.log("TEST");
+    test: function (a,b) {
+        console.log(b.worldX, b.worldY);
     },
     marioWallHit: function (a, b) {
         console.log(a.objectMario);
@@ -175,7 +175,7 @@ PlayState.prototype = {
             b.animations.stop();
             console.log("prize");
             b.frameName = 'prize_box_hit';
-            if (b.x !== 336) {
+            if (b.x !== 336 || b.x !== 1744 || b.x !== 1248) {
                 var coin = game.add.sprite(b.x + 2, b.y - 16, 'mapElement', 'prize_box_coin_03');
                 coin.animations.add('coin', Phaser.Animation.generateFrameNames('prize_box_coin_', 0, 3, '', 2), 30, true);
                 coin.animations.play('coin', 3, false);
