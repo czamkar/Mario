@@ -92,13 +92,13 @@ PlayState.prototype = {
                 y: b.y - 4
             }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
         } else if (a.body.touching.up && b.body.touching.down && a.objectMario.size) {
-            var wallCrash1 = game.add.sprite(b.x, b.y, 'wall2');
+            var wallCrash1 = game.add.sprite(b.x+8, b.y, 'wall2');
             wallCrash1.anchor.setTo(0.5);
-            var wallCrash2 = game.add.sprite(b.x, b.y, 'wall1');
+            var wallCrash2 = game.add.sprite(b.x+8, b.y, 'wall1');
             wallCrash2.anchor.setTo(0.5);
-            var wallCrash3 = game.add.sprite(b.x, b.y, 'wall2');
+            var wallCrash3 = game.add.sprite(b.x+8, b.y, 'wall2');
             wallCrash3.anchor.setTo(0.5);
-            var wallCrash4 = game.add.sprite(b.x, b.y, 'wall1');
+            var wallCrash4 = game.add.sprite(b.x+8, b.y, 'wall1');
             wallCrash4.anchor.setTo(0.5);
             
             // wallCrash1.scale.setTo(0.5);
