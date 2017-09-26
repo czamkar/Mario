@@ -175,7 +175,18 @@ PlayState.prototype = {
             b.animations.stop();
             console.log("prize");
             b.frameName = 'prize_box_hit';
-            if (b.x !== 336 || b.x !== 1744 || b.x !== 1248) {
+            var  check = function(){
+                if(b.x === 336)
+               { return false;}
+                else if(b.x === 1248)
+                { return false;}
+                else if(b.x === 1744 && b.y === 80)
+                { return false;}
+                else{
+                    return true;
+                }
+            };
+            if (check()) {
                 var coin = game.add.sprite(b.x + 2, b.y - 16, 'mapElement', 'prize_box_coin_03');
                 coin.animations.add('coin', Phaser.Animation.generateFrameNames('prize_box_coin_', 0, 3, '', 2), 30, true);
                 coin.animations.play('coin', 3, false);
