@@ -72,10 +72,22 @@ PlayState.prototype = {
             this.timerJump = game.time.now + 750;
         }
         if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down && !this.mario.sprite.objectMario.frozen) {
-            this.mario.sprite.frameName = "mario_jump";
+            if(!this.mario.sprite.objectMario.size){
+
+                this.mario.sprite.frameName = "mario_jump";
+            }
+            else {
+                this.mario.sprite.frameName = "mario_big_jump";
+                }
             this.mario.controls("jump");
         } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down && !this.mario.sprite.objectMario.frozen) {
-            this.mario.sprite.frameName = "mario_jump";
+            if(!this.mario.sprite.objectMario.size){
+                
+                                this.mario.sprite.frameName = "mario_jump";
+                            }
+                            else {
+                                this.mario.sprite.frameName = "mario_big_jump";
+                                }
             this.mario.controls("jump");
         } else {
             this.mario.controls("");
