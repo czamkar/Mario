@@ -68,8 +68,6 @@ var PrizeBox = function (game) {
 }
 PrizeBox.prototype.createPrizeBox = function () {
     for (var index = 0; index < this.listPrizeBox.length; index++) {
-        console.log(this.listPrizeBox[index].x);
-        console.log(this.listPrizeBox[index]);
         var box = game.add.tileSprite(this.listPrizeBox[index].x, this.listPrizeBox[index].y, 16, 16, 'mapElement', 'prize_box_01');
 
         box.animations.add('animateBox', Phaser.Animation.generateFrameNames('prize_box_0', 0, 3, '', 1), 30, true);

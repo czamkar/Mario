@@ -35,7 +35,7 @@ StartState.prototype = {
   
         this.mario = new Mario(30, 200, game);
 
-        var startLabel = game.add.bitmapText(320, 180, "marioFont", "Press spacebar to play", 18);
+        var startLabel = game.add.bitmapText(game.width/2, game.height/2 + 30, "marioFont", "Press spacebar to play", 15);
         startLabel.anchor.setTo(0.5);
 
 

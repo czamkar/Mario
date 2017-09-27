@@ -31,6 +31,7 @@ PlayState.prototype = {
         this.gomb = new Goomba(30 * 16, 200, game);
         this.goombas.add(this.gomb.sprite);
         this.gomb = new Goomba(32 * 16, 200, game);
+        this.koopa = new Koopa(18 * 16, 200, game);
         this.goombas.add(this.gomb.sprite);
 
         console.log(this.walls);
@@ -54,7 +55,9 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.goombas);
-        game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit);
+        game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
+        game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
+        game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
         game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.d, null, this);
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
         if (this.mushroom) {
@@ -72,72 +75,101 @@ PlayState.prototype = {
             this.timerJump = game.time.now + 750;
         }
         if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down && !this.mario.sprite.objectMario.frozen) {
-            if(!this.mario.sprite.objectMario.size){
+            if (!this.mario.sprite.objectMario.size) {
 
                 this.mario.sprite.frameName = "mario_jump";
-            }
-            else {
+            } else {
                 this.mario.sprite.frameName = "mario_big_jump";
-                }
+            }
             this.mario.controls("jump");
         } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down && !this.mario.sprite.objectMario.frozen) {
-            if(!this.mario.sprite.objectMario.size){
-                
-                                this.mario.sprite.frameName = "mario_jump";
-                            }
-                            else {
-                                this.mario.sprite.frameName = "mario_big_jump";
-                                }
+            if (!this.mario.sprite.objectMario.size) {
+
+                this.mario.sprite.frameName = "mario_jump";
+            } else {
+                this.mario.sprite.frameName = "mario_big_jump";
+            }
             this.mario.controls("jump");
         } else {
             this.mario.controls("");
         }
     },
-    test: function (a,b) {
+    test: function (a, b) {
         console.log(b.worldX, b.worldY);
     },
     marioWallHit: function (a, b) {
-        console.log(a.objectMario);
-        console.log(b);
+
         if (a.body.touching.up && b.body.touching.down && !a.objectMario.size) {
             var tween = game.add.tween(b).to({
                 y: b.y - 4
             }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
         } else if (a.body.touching.up && b.body.touching.down && a.objectMario.size) {
-            var wallCrash1 = game.add.sprite(b.x+8, b.y, 'wall2');
+            var wallCrash1 = game.add.sprite(b.x + 8, b.y, 'wall2');
             wallCrash1.anchor.setTo(0.5);
-            var wallCrash2 = game.add.sprite(b.x+8, b.y, 'wall1');
+            var wallCrash2 = game.add.sprite(b.x + 8, b.y, 'wall1');
             wallCrash2.anchor.setTo(0.5);
-            var wallCrash3 = game.add.sprite(b.x+8, b.y, 'wall2');
+            var wallCrash3 = game.add.sprite(b.x + 8, b.y, 'wall2');
             wallCrash3.anchor.setTo(0.5);
-            var wallCrash4 = game.add.sprite(b.x+8, b.y, 'wall1');
+            var wallCrash4 = game.add.sprite(b.x + 8, b.y, 'wall1');
             wallCrash4.anchor.setTo(0.5);
-            
+
             // wallCrash1.scale.setTo(0.5);
-            var tween2 = game.add.tween(wallCrash1).to( { angle: -180, y: wallCrash1.y-30, x: wallCrash1.x-15 }, 300, Phaser.Easing.Linear.None, true);
+            var tween2 = game.add.tween(wallCrash1).to({
+                angle: -180,
+                y: wallCrash1.y - 30,
+                x: wallCrash1.x - 15
+            }, 300, Phaser.Easing.Linear.None, true);
             tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash1).to( { angle: -360,y: wallCrash1.y+120,x: wallCrash1.x-30}, 700, Phaser.Easing.Linear.None, true);
+                var tween = game.add.tween(wallCrash1).to({
+                    angle: -360,
+                    y: wallCrash1.y + 120,
+                    x: wallCrash1.x - 30
+                }, 700, Phaser.Easing.Linear.None, true);
                 tween.onComplete.add(function () {
                     wallCrash1.kill();
                 }, this, true);
             }, this, true);
-            var tween2 = game.add.tween(wallCrash3).to( { angle: -180, y: wallCrash3.y-10, x: wallCrash3.x-15 }, 300, Phaser.Easing.Linear.None, true);
+            var tween2 = game.add.tween(wallCrash3).to({
+                angle: -180,
+                y: wallCrash3.y - 10,
+                x: wallCrash3.x - 15
+            }, 300, Phaser.Easing.Linear.None, true);
             tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash3).to( { angle: -360,y: wallCrash3.y+120,x: wallCrash3.x-30}, 700, Phaser.Easing.Linear.None, true);
+                var tween = game.add.tween(wallCrash3).to({
+                    angle: -360,
+                    y: wallCrash3.y + 120,
+                    x: wallCrash3.x - 30
+                }, 700, Phaser.Easing.Linear.None, true);
                 tween.onComplete.add(function () {
                     wallCrash3.kill();
                 }, this, true);
             }, this, true);
-            var tween2 = game.add.tween(wallCrash2).to( { angle: 180, y: wallCrash2.y-30, x: wallCrash2.x+15 }, 300, Phaser.Easing.Linear.None, true);
+            var tween2 = game.add.tween(wallCrash2).to({
+                angle: 180,
+                y: wallCrash2.y - 30,
+                x: wallCrash2.x + 15
+            }, 300, Phaser.Easing.Linear.None, true);
             tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash2).to( { angle:90,y: wallCrash2.y+120,x: wallCrash2.x+45}, 700, Phaser.Easing.Linear.None, true);
+                var tween = game.add.tween(wallCrash2).to({
+                    angle: 90,
+                    y: wallCrash2.y + 120,
+                    x: wallCrash2.x + 45
+                }, 700, Phaser.Easing.Linear.None, true);
                 tween.onComplete.add(function () {
                     wallCrash2.kill();
                 }, this, true);
             }, this, true);
-            var tween2 = game.add.tween(wallCrash4).to( { angle: 180, y: wallCrash4.y-10, x: wallCrash4.x+15 }, 300, Phaser.Easing.Linear.None, true);
+            var tween2 = game.add.tween(wallCrash4).to({
+                angle: 180,
+                y: wallCrash4.y - 10,
+                x: wallCrash4.x + 15
+            }, 300, Phaser.Easing.Linear.None, true);
             tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash4).to( { angle:90,y: wallCrash4.y+120,x: wallCrash4.x+45}, 700, Phaser.Easing.Linear.None, true);
+                var tween = game.add.tween(wallCrash4).to({
+                    angle: 90,
+                    y: wallCrash4.y + 120,
+                    x: wallCrash4.x + 45
+                }, 700, Phaser.Easing.Linear.None, true);
                 tween.onComplete.add(function () {
                     wallCrash4.kill();
                 }, this, true);
@@ -145,31 +177,41 @@ PlayState.prototype = {
             b.destroy();
         }
     },
-    marioMushroomHit: function (a, b) {    
-        
+    marioMushroomHit: function (a, b) {
+
         a.objectMario.frozen = true;
-        b.body.destroy();   
+        b.body.destroy();
         this.mushroom.alive = false;
-        
-      
+
         b.kill();
     },
-    marioGommbaHit: function (a, b) {
+    marioKoopaHit: function (a, b) {
         if (a.body.touching.down) {
-            b.body.bounce.x = 1;
-            b.body.velocity.x = 0;
-            b.body.destroy();
-            b.animations.stop();
-            b.frameName = "goomba_dead";
-            game.time.events.add(Phaser.Timer.SECOND * 1, function () {
-                console.log("timer");
-                b.kill();
-            }, this);
+            if (b.frameName != 'koopa_dead') {
+                a.body.bounce.y = 1.8;
+                b.body.velocity.x = 0;
 
-        }
+                b.animations.stop();
+                b.frameName = "koopa_dead";
+                game.time.events.add(Phaser.Timer.HALF * 1, function () {
+
+                    a.body.bounce.y = 0;
+                    // b.kill();
+                }, this);
+            } else {
+                a.body.bounce.y = 1.1;
+                b.body.velocity.x = 60;
+                game.time.events.add(Phaser.Timer.HALF * 1, function () {
+
+                    a.body.bounce.y = 0;
+                    // b.kill();
+                }, this);
+            }
+        }        
         if (a.body.touching.right || a.body.touching.left) {
-            if (a.scale.y > 1) {
-                a.scale.y = 1;
+            console.log(a);
+            if (a.objectMario.size) {
+
                 if (b.body.deltaX > 0) {
 
                     b.body.velocity.x = 50;
@@ -177,6 +219,40 @@ PlayState.prototype = {
 
                     b.body.velocity.x = -50;
                 }
+                a.objectMario.size = false;
+            } else {
+                game.level.lives--;
+                game.state.start("Info");
+            }
+        }
+
+    },
+    marioGommbaHit: function (a, b) {
+        if (a.body.touching.down) {
+            a.body.bounce.y = 1.1;
+            b.body.velocity.x = 0;
+            b.body.destroy();
+            b.animations.stop();
+            b.frameName = "goomba_dead";
+            game.time.events.add(Phaser.Timer.HALF * 1, function () {
+
+                a.body.bounce.y = 0;
+                b.kill();
+            }, this);
+
+        }
+        if (a.body.touching.right || a.body.touching.left) {
+            console.log(a);
+            if (a.objectMario.size) {
+
+                if (b.body.deltaX > 0) {
+
+                    b.body.velocity.x = 50;
+                } else {
+
+                    b.body.velocity.x = -50;
+                }
+                a.objectMario.size = false;
             } else {
                 game.level.lives--;
                 game.state.start("Info");
@@ -185,21 +261,16 @@ PlayState.prototype = {
     },
     d: function (a, b) {
         if (a.body.touching.up && b.body.touching.down) {
-            console.log('----------------------------');
-            console.log(a);
-            console.log(b);
-            console.log('----------------------------');
             b.animations.stop();
-            console.log("prize");
             b.frameName = 'prize_box_hit';
-            var  check = function(){
-                if(b.x === 336)
-               { return false;}
-                else if(b.x === 1248)
-                { return false;}
-                else if(b.x === 1744 && b.y === 80)
-                { return false;}
-                else{
+            var check = function () {
+                if (b.x === 336) {
+                    return false;
+                } else if (b.x === 1248) {
+                    return false;
+                } else if (b.x === 1744 && b.y === 80) {
+                    return false;
+                } else {
                     return true;
                 }
             };
@@ -269,7 +340,7 @@ PlayState.prototype = {
 
     },
     render: function () {
-        // game.debug.cameraInfo(game.camera, 32, 32);
+        game.debug.cameraInfo(game.camera, 32, 32);
         if (this.mushroom) {
             game.debug.body(this.mushroom);
         }
@@ -282,7 +353,8 @@ PlayState.prototype = {
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         game.debug.body(this.mario.sprite);
-        game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        game.debug.body(this.koopa.sprite);
+        // game.debug.bodyInfo(this.mario.sprite, 16, 32);
         // game.debug.bodyInfo(this.walls.children[0], 16, 32);
         // game.debug.bodyInfo(this.goombas.children[0], 16, 32);
     }
