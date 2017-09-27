@@ -8,13 +8,21 @@ PlayState.prototype = {
         this.map = new Map(game);
         this.mushrooms = game.add.group();
 
+        this.flags = game.add.group();
+        this.flags.enableBody = true;
         this.walls = game.add.group();
         this.walls.enableBody = true;
         //createFromObjects(name, gid, key, frame, exists, autoCull, group, CustomClass, adjustY)
 
 
         this.map.map.createFromObjects('walls', 8, 'mapElement', 'block_01', true, false, this.walls);
-
+        this.map.map.createFromObjects('walls', 19, 'mapElement', 'flag_04', true, false, this.flags);
+        this.map.map.createFromObjects('walls', 12, 'mapElement', 'flag_03', true, false, this.flags);
+        this.flags.forEach(function (a) {
+            a.body.allowGravity = false;
+            a.body.immovable = true;
+            a.body.setSize(16, 16, 0, 0);
+        }, this);
         this.walls.forEach(function (a) {
             a.body.allowGravity = false;
             a.body.immovable = true;
@@ -26,7 +34,7 @@ PlayState.prototype = {
         this.PrizeBoxGroup.enableBody = true;
         this.PrizeBox.createPrizeBox();
         this.labels = new Labels(game, this.map);
-        this.mario = new Mario(30, 200, game);
+        this.mario = new Mario(6 * 16, 0, game);
 
         this.gomb = new Goomba(30 * 16, 200, game);
         this.goombas.add(this.gomb.sprite);
@@ -52,6 +60,7 @@ PlayState.prototype = {
     update: function () {
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.mario.sprite, this.walls, this.marioWallHit, null, this);
+        game.physics.arcade.collide(this.mario.sprite, this.flags, this.marioGrabFlag, null, this);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.goombas);
@@ -95,7 +104,10 @@ PlayState.prototype = {
         }
     },
     test: function (a, b) {
-        console.log(b.worldX, b.worldY);
+        console.log('x');
+    },
+    marioGrabFlag: function (a, b) {
+
     },
     marioWallHit: function (a, b) {
 
@@ -204,13 +216,28 @@ PlayState.prototype = {
             } else {
                 a.body.velocity.y = -150;
                 a.body.velocity.x = 0;
-                game.time.events.add(Phaser.Timer.HALF * 1, function () {
+                var site;
+                console.log(a.x);
+                console.log(a.width);
+                console.log(b.width);
+                console.log(b.x);
+                if (a.x + 8 <= b.x) {
+                    game.time.events.add(Phaser.Timer.QUARTER * 0.1, function () {
 
 
-                    b.body.velocity.x = 130;
-                    // b.kill();
-                }, this);
-             
+                        b.body.velocity.x = 130;
+                        // b.kill();
+                    }, this);
+
+                } else if (a.x + 8 > b.x) {
+                    game.time.events.add(Phaser.Timer.QUARTER * 0.1, function () {
+
+
+                        b.body.velocity.x = -130;
+                        // b.kill();
+                    }, this);
+                }
+
 
             }
         }
@@ -231,10 +258,10 @@ PlayState.prototype = {
                     game.level.lives--;
                     game.state.start("Info");
                 }
-            }else{
-                if(a.body.touching.right){
+            } else {
+                if (a.body.touching.right) {
                     b.body.velocity.x = 130;
-                }else if(a.body.touching.left){
+                } else if (a.body.touching.left) {
                     b.body.velocity.x = -130;
                 }
             }
@@ -355,13 +382,22 @@ PlayState.prototype = {
 
     },
     render: function () {
-        console.log(this.mario.sprite.body.velocity.y);
-        game.debug.text('Mario velo y:  ' + this.mario.sprite.body.velocity.y, 32, 148);
+        // console.log(this.mario.sprite.y);
+        // console.log(this.koopa.sprite.y);
+        // console.log(this.koopa.sprite.width);
+
+
+
+
+        game.debug.text('Mario  x:  ' + this.mario.sprite.x, 32, 88);
+        game.debug.text('koppa velo x:  ' + this.koopa.sprite.x, 32, 108);
+        game.debug.text('wid velo y:  ' + this.koopa.sprite.width, 32, 128);
+        // game.debug.text('Mario velo y:  ' + this.mario.sprite.body.velocity.y, 32, 148);
         // game.debug.cameraInfo(game.camera, 32, 32);
         if (this.mushroom) {
             game.debug.body(this.mushroom);
         }
-        this.walls.forEach(function (a) {
+        this.flags.forEach(function (a) {
             game.debug.body(a);
         }, this);
         this.goombas.forEach(function (a) {
