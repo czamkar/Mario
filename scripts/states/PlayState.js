@@ -194,7 +194,7 @@ PlayState.prototype = {
                 b.animations.stop();
                 b.frameName = "koopa_dead";
                 b.y = b.y - 30;
-                b.body.setSize(16, 16, 0, 16);
+                b.body.setSize(16, 16, 0, 8);
 
                 game.time.events.add(Phaser.Timer.HALF * 2, function () {
 
