@@ -193,7 +193,7 @@ PlayState.prototype = {
                 b.anchor.setTo(0.5, 0.5);
                 b.animations.stop();
                 b.frameName = "koopa_dead";
-                b.y = b.y - 30;
+                b.y = b.y - 8;
                 b.body.setSize(16, 16, 0, 8);
 
                 game.time.events.add(Phaser.Timer.HALF * 2, function () {
@@ -210,7 +210,7 @@ PlayState.prototype = {
                     b.body.velocity.x = 130;
                     // b.kill();
                 }, this);
-                a.body.velocity.x = 130;
+             
 
             }
         }
