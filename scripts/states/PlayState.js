@@ -188,55 +188,70 @@ PlayState.prototype = {
     marioKoopaHit: function (a, b) {
         if (a.body.touching.down) {
             if (b.frameName != 'koopa_dead') {
-                a.body.bounce.y = 1.8;
+                a.body.velocity.y = -150;
                 b.body.velocity.x = 0;
-
+                b.anchor.setTo(0.5, 0.5);
                 b.animations.stop();
                 b.frameName = "koopa_dead";
-                game.time.events.add(Phaser.Timer.HALF * 1, function () {
+                b.y = b.y - 30;
+                b.body.setSize(16, 16, 0, 16);
 
-                    a.body.bounce.y = 0;
+                game.time.events.add(Phaser.Timer.HALF * 2, function () {
+
+
                     // b.kill();
                 }, this);
             } else {
-                a.body.bounce.y = 1.1;
-                b.body.velocity.x = 60;
+                a.body.velocity.y = -150;
+                a.body.velocity.x = 0;
                 game.time.events.add(Phaser.Timer.HALF * 1, function () {
 
-                    a.body.bounce.y = 0;
+
+                    b.body.velocity.x = 130;
                     // b.kill();
                 }, this);
+                a.body.velocity.x = 130;
+
             }
-        }        
+        }
         if (a.body.touching.right || a.body.touching.left) {
             console.log(a);
-            if (a.objectMario.size) {
+            if (b.frameName != 'koopa_dead') {
+                if (a.objectMario.size) {
 
-                if (b.body.deltaX > 0) {
+                    if (b.body.deltaX > 0) {
 
-                    b.body.velocity.x = 50;
+                        b.body.velocity.x = 50;
+                    } else {
+
+                        b.body.velocity.x = -50;
+                    }
+                    a.objectMario.size = false;
                 } else {
-
-                    b.body.velocity.x = -50;
+                    game.level.lives--;
+                    game.state.start("Info");
                 }
-                a.objectMario.size = false;
-            } else {
-                game.level.lives--;
-                game.state.start("Info");
+            }else{
+                if(a.body.touching.right){
+                    b.body.velocity.x = 130;
+                }else if(a.body.touching.left){
+                    b.body.velocity.x = -130;
+                }
             }
         }
 
     },
     marioGommbaHit: function (a, b) {
         if (a.body.touching.down) {
-            a.body.bounce.y = 1.1;
+            //a.body.bounce.y = 4;
+            a.body.velocity.y = -150;
             b.body.velocity.x = 0;
-            b.body.destroy();
+
             b.animations.stop();
             b.frameName = "goomba_dead";
             game.time.events.add(Phaser.Timer.HALF * 1, function () {
 
-                a.body.bounce.y = 0;
+                // a.body.bounce.y = 0;
                 b.kill();
             }, this);
 
@@ -340,14 +355,16 @@ PlayState.prototype = {
 
     },
     render: function () {
-        game.debug.cameraInfo(game.camera, 32, 32);
+        console.log(this.mario.sprite.body.velocity.y);
+        game.debug.text('Mario velo y:  ' + this.mario.sprite.body.velocity.y, 32, 148);
+        // game.debug.cameraInfo(game.camera, 32, 32);
         if (this.mushroom) {
             game.debug.body(this.mushroom);
         }
         this.walls.forEach(function (a) {
             game.debug.body(a);
         }, this);
-        this.PrizeBoxGroup.forEach(function (a) {
+        this.goombas.forEach(function (a) {
             game.debug.body(a);
         }, this);
         // console.log(this.goombas);
