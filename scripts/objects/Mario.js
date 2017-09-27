@@ -6,7 +6,8 @@ var Mario = function (x, y, game) {
     this.sprite.animations.add('grow', ['mario_idle_01', 'mario_idle_01', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02'], 15, false);
 
     //this.sprite.animations.add('sMario', Phaser.Animation.generateFrameNames('Bman_S_f', 0, 7, '', 2), 30, true);
-    this.sprite.anchor.setTo(0.5);
+    this.sprite.anchor.x = 0.5;
+    this.sprite.anchor.y = 0.5;
     this.sprite.objectMario = this;
     this.size = false;
     this.facing = "idle";
@@ -52,17 +53,20 @@ Mario.prototype.controls = function (value) {
                 this.sprite.body.velocity.x = 0;
             }
             if (value != "jump") {
-                this.sprite.frameName = "mario_idle_01";
+                if (this.size) {
+                    this.sprite.frameName = "mario_idle_02";
+                } else {
+                    this.sprite.frameName = "mario_idle_01";
+                }
             }
             this.facing = 'idle';
 
         }
-    }else{
+    } else {
         //console.log('c');
-        
+
         console.log(value);
-        if(!this.anComplete)
-        {
+        if (!this.anComplete) {
             this.growUp();
         }
     }
@@ -75,12 +79,42 @@ Mario.prototype.growUp = function () {
     var anim = this.sprite.animations.play('grow');
     anim.delay = 500;
     anim.onComplete.add(animationStopped, this);
+    anim.enableUpdate = true;
+
     function animationStopped(sprite, animation) {
-        
-          //  game.add.text(320, 64+32, 'Animation stopped', { fill: 'white' });
-            this.frozen = false;
-            this.anComplete = false;
+
+        //  game.add.text(320, 64+32, 'Animation stopped', { fill: 'white' });
+        this.frozen = false;
+        this.anComplete = false;
+        this.sprite.frameName = "mario_idle_02";
+    }
+    anim.onUpdate.add(onUpdate, this);
+    var i = 0;
+    function onUpdate(anim, frame) {
+        //'mario_idle_01', 'mario_idle_01', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02'
+        console.log(frame.index);
+   
+     
+        switch (frame.index) {
+            case 8:
+                this.sprite.body.setSize(12, 32, 2, 0);
+                break;
+            case 7:
+            if (i != 0) {
+                //this.sprite.body.y = this.sprite.body.y + 16;
+                this.sprite.y = this.sprite.y + 16;
+            }
+                this.sprite.body.setSize(12, 16, 2, 0);
+           
+                break;
+
+            default:
+                break;
         }
+        i++;
+
+}
+
     this.size = true;
 
 }

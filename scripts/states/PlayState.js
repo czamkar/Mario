@@ -270,7 +270,7 @@ PlayState.prototype = {
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         game.debug.body(this.mario.sprite);
-        // game.debug.bodyInfo(this.mario.sprite, 16, 32);
+        game.debug.bodyInfo(this.mario.sprite, 16, 32);
         // game.debug.bodyInfo(this.walls.children[0], 16, 32);
         // game.debug.bodyInfo(this.goombas.children[0], 16, 32);
     }
