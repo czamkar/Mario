@@ -71,10 +71,10 @@ PlayState.prototype = {
             this.mario.sprite.body.velocity.y = -260;
             this.timerJump = game.time.now + 750;
         }
-        if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down) {
+        if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down && !this.mario.sprite.objectMario.frozen) {
             this.mario.sprite.frameName = "mario_jump";
             this.mario.controls("jump");
-        } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down) {
+        } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down && !this.mario.sprite.objectMario.frozen) {
             this.mario.sprite.frameName = "mario_jump";
             this.mario.controls("jump");
         } else {
@@ -134,10 +134,12 @@ PlayState.prototype = {
         }
     },
     marioMushroomHit: function (a, b) {    
-        a.objectMario.growUp();
+        
+        a.objectMario.frozen = true;
+        b.body.destroy();   
         this.mushroom.alive = false;
-        b.body.velocity.x = 0;
-        b.body.destroy();
+        
+      
         b.kill();
     },
     marioGommbaHit: function (a, b) {
