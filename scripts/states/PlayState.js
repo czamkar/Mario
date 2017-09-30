@@ -35,12 +35,13 @@ PlayState.prototype = {
         this.goombas.enableBody = true;
         this.goom = new Goomba(game);
         this.goom.createGoomba();
+
         this.PrizeBox = new PrizeBox(game);
         this.PrizeBoxGroup = game.add.group();
         this.PrizeBoxGroup.enableBody = true;
         this.PrizeBox.createPrizeBox();
         this.labels = new Labels(game, this.map);
-        this.mario = new Mario(10 * 16, 0, game);
+        this.mario = new Mario(32, 0, game);
 
         this.koopa = new Koopa(1700, 200, game);
 
@@ -73,7 +74,7 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.walls);
-        game.physics.arcade.collide(this.goombas, this.goombas);
+        game.physics.arcade.collide(this.goombas);
         game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
         game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
@@ -118,15 +119,43 @@ PlayState.prototype = {
     test: function (a, b) {
         console.log('x');
     },
+    addPoints: function (points, sprite) {
+        point = game.add.bitmapText(sprite.x + 10, sprite.y - 10, "marioFont", points, 10);
+        var tween = game.add.tween(point).to({
+            y: point.y - 20
+        }, 200, Phaser.Easing.None, true);
+        tween.onComplete.add(function () {
+            point.kill();
+        }, this, true);
+        game.level.points += points;
+        if (game.level.points < 1000) {
+            this.labels.pointsText.text = "000" + game.level.points;
+        }else if (game.level.points < 10000) {
+            this.labels.pointsText.text = "00" + game.level.points;
+        } else if (game.level.points < 100000) {
+            this.labels.pointsText.text = "0" + game.level.points;
+        } else if (game.level.points < 1000000) {
+            this.labels.pointsText.text = game.level.points;
+        }
+
+    },
     enemiesToAccelerate: function (marioX) {
         if (marioX < 150) {
             this.goombas.children[0].body.velocity.x = -30;
+        } else if (marioX > 500 && marioX < 510) {
+
+            this.goombas.children[1].body.velocity.x = -30;
+        } else if (marioX > 670 && marioX < 680) {
+
+            this.goombas.children[2].body.velocity.x = -30;
+            this.goombas.children[3].body.velocity.x = -30;
         } else if (marioX > 1080 && marioX < 1110) {
 
             this.goombas.children[4].body.velocity.x = -30;
             this.goombas.children[5].body.velocity.x = -30;
+        } else if (marioX > 1500 && marioX < 1600) {
+            this.koopa.sprite.body.velocity.x = -30;
         }
-        console.log(this.goombas.children[4].body._dy);
     },
     marioGrabFlag: function (a, b) {
         a.frameName = 'mario_idle_01';
@@ -227,10 +256,21 @@ PlayState.prototype = {
                 }, this, true);
             }, this, true);
             b.destroy();
+            var points = 50;
+            game.level.points += points;
+            if (game.level.points < 1000) {
+                this.labels.pointsText.text = "000" + game.level.points;
+            }else if (game.level.points < 10000) {
+                this.labels.pointsText.text = "00" + game.level.points;
+            } else if (game.level.points < 100000) {
+                this.labels.pointsText.text = "0" + game.level.points;
+            } else if (game.level.points < 1000000) {
+                this.labels.pointsText.text = game.level.points;
+            }
         }
     },
     marioMushroomHit: function (a, b) {
-
+        this.addPoints(1000, b);
         a.objectMario.frozen = true;
         b.body.destroy();
         this.mushroom.alive = false;
@@ -331,6 +371,7 @@ PlayState.prototype = {
 
             b.animations.stop();
             b.frameName = "goomba_dead";
+            this.addPoints(100, b);
             game.time.events.add(Phaser.Timer.HALF * 1, function () {
 
                 // a.body.bounce.y = 0;
@@ -392,7 +433,7 @@ PlayState.prototype = {
                     y: b.y - 4
                 }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
                 tween.onComplete.add(function () {
-
+                    this.addPoints(200, b);
                     // console.log(this.map.map.getTile(b.x/16, b.y/16, this.map.mapLayers['collide']).x, this.map.map.getTile(b.x/16, b.y/16, this.map.mapLayers['collide']).y);
                     this.map.map.removeTile(b.x / 16, b.y / 16, this.map.mapLayers['collide']);
                     this.map.map.putTile(43, this.map.mapLayers['collide'].getTileX(b.x), this.map.mapLayers['collide'].getTileY(b.y), this.map.mapLayers['collide']);
@@ -448,21 +489,21 @@ PlayState.prototype = {
 
 
 
-        game.debug.text('Mario  x:  ' + this.mario.sprite.x, 32, 88);
+        // game.debug.text('Mario  x:  ' + this.mario.sprite.x, 32, 88);
         // game.debug.text('koppa velo x:  ' + this.koopa.sprite.x, 32, 108);
 
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x + game.width / 2 + 16), 32, 148);
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x - game.width / 2 + 16), 32, 168);
         // game.debug.cameraInfo(game.camera, 32, 32);
-        if (this.mushroom) {
-            game.debug.body(this.mushroom);
-        }
-        this.flags.forEach(function (a) {
-            game.debug.body(a);
-        }, this);
-        this.goombas.forEach(function (a) {
-            game.debug.body(a);
-        }, this);
+        // if (this.mushroom) {
+        //     game.debug.body(this.mushroom);
+        // }
+        // this.flags.forEach(function (a) {
+        //     game.debug.body(a);
+        // }, this);
+        // this.goombas.forEach(function (a) {
+        //     game.debug.body(a);
+        // }, this);
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         // game.debug.body(this.mario.sprite);

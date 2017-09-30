@@ -26,7 +26,7 @@ StartState.prototype = {
         game.stage.backgroundColor = "#6888ff";
 
         this.map = new Map(game);
-        
+
         this.walls = game.add.group();
         this.walls.enableBody = true;
         this.map.map.createFromObjects('walls', 8, 'mapElement', 'block_01', true, false, this.walls);
@@ -41,7 +41,7 @@ StartState.prototype = {
 
         this.labels = new Labels(game, this.map);
 
-        this.mario = new Mario(30, 200, game);
+        this.mario = new Mario(32, 200, game);
 
         var startLabel = game.add.bitmapText(game.width / 2, game.height / 2 + 30, "marioFont", "Press spacebar to play", 15);
         startLabel.anchor.setTo(0.5);
