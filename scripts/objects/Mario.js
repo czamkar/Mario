@@ -10,6 +10,7 @@ var Mario = function (x, y, game) {
     this.sprite.anchor.setTo(0.5, 1);
     this.sprite.objectMario = this;
     this.size = false;
+    this.onFlag = false;
     this.facing = "idle";
     this.frozen = false;
     this.anComplete = false;
@@ -99,6 +100,7 @@ Mario.prototype.growUp = function () {
         this.sprite.body.setSize(12, 32, 2, 0);
         this.sprite.body.allowGravity = false;
         this.sprite.body.velocity.x = 0;
+        this.sprite.body.velocity.y = 0;
         var anim = this.sprite.animations.play('grow');
         anim.delay = 500;
         anim.onComplete.add(animationStopped, this);
