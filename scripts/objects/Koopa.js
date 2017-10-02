@@ -6,7 +6,8 @@ var Koopa = function (x, y, game) {
     this.sprite.anchor.setTo(0.5);
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
-    this.sprite.body.allowGravity = true;
 
+    
+    
     this.sprite.body.bounce.x = 1;
 }

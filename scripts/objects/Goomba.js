@@ -39,7 +39,7 @@ var Goomba = function (game) {
         x: 2820,
         y: 200
     }, {
-        x: 2836,
+        x: 2848,
         y: 200
     }]
 }
