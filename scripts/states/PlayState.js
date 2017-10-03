@@ -84,6 +84,7 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.walls);
+        game.physics.arcade.collide(this.goombas, this.PrizeBoxGroup);
         game.physics.arcade.collide(this.goombas);
         game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
         game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
@@ -439,7 +440,7 @@ PlayState.prototype = {
                 a.body.velocity.x = 0;
                 a.objectMario.size = false;
             } else {
-                this.goombas.forEach(function (a) {
+                this.goombas.forEachAlive(function (a) {
                     a.body.velocity.setTo(0);
                 }, this);
                 this.mario.sprite.objectMario.alive = false;

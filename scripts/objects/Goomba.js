@@ -56,6 +56,7 @@ Goomba.prototype.createGoomba = function () {
             this.sprite.body.immovable = false;
             this.sprite.body.allowGravity = true;
             this.sprite.body.bounce.x = 1;
+            this.sprite.body.maxVelocity.x = 30;
             game.state.states.Play.goombas.add(this.sprite);
         }
     }
