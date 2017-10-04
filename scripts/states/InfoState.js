@@ -13,12 +13,14 @@ InfoState.prototype = {
         marioSpirte.anchor.setTo(0.5);
         var timer = game.time.create(false);
 
-        timer.loop(50, this.nextState, this);
+        timer.loop(500, this.nextState, this);
 
         timer.start();
     },
     nextState: function(){
-        game.state.start("Play");
+
+            game.state.start("Play");
+        
     },
     update: function () {
 

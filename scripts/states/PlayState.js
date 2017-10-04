@@ -39,7 +39,7 @@ PlayState.prototype = {
         this.PrizeBoxGroup.enableBody = true;
         this.PrizeBox.createPrizeBox();
         this.labels = new Labels(game, this.map);
-        this.mario = new Mario(32, 0, game);
+        this.mario = new Mario(16 * 55, 0, game);
 
         this.goombas = game.add.group();
         this.goombas.enableBody = true;
@@ -71,6 +71,10 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 500;
     },
     update: function () {
+        if (this.timeTotal < 0) {
+            game.state.start("Time");
+        }
+
         this.enemiesToAccelerate(this.mario.sprite.x);
         if (this.koopa.sprite.x > (this.mario.sprite.x + game.width / 2 + 16) && this.koopa.sprite.frameName == "koopa_dead") {
             this.koopa.sprite.kill();
@@ -180,8 +184,6 @@ PlayState.prototype = {
         a.frameName = 'mario_idle_01';
         console.log(b);
         if (!this.mario.sprite.objectMario.onFlag) {
-            console.log('x');
-            complete = false;
             var tween = game.add.tween(b).to({
                 y: 168
             }, 2000, Phaser.Easing.None, true, );
@@ -192,7 +194,7 @@ PlayState.prototype = {
                 y: 168
             }, 2000, Phaser.Easing.None, true, );
             tween3.onComplete.add(function () {
-
+                a.animations.play('walk');
                 a.body.velocity.x = 120;
             }, this, true);
         }
@@ -200,6 +202,7 @@ PlayState.prototype = {
 
     },
     wallGoombaHit: function (a, b) {
+        console.log('x');
         b.animations.stop();
         b.scale.y = -1;
         b.body.destroy();
@@ -375,7 +378,11 @@ PlayState.prototype = {
                     a.objectMario.size = false;
                 } else {
                     game.level.lives--;
-                    game.state.start("Info");
+                    if (game.level.lives == 0) {
+                        game.state.start("Over");
+                    } else {
+                        game.state.start("Info");
+                    }
                 }
             } else {
                 console.log('b1');
@@ -398,7 +405,11 @@ PlayState.prototype = {
                         a.objectMario.size = false;
                     } else {
                         game.level.lives--;
-                        game.state.start("Info");
+                        if (game.level.lives == 0) {
+                            game.state.start("Over");
+                        } else {
+                            game.state.start("Info");
+                        }
                     }
                 }
             }
@@ -427,8 +438,9 @@ PlayState.prototype = {
         if (a.body.touching.right || a.body.touching.left) {
             console.log(a.objectMario.size);
             if (a.objectMario.size) {
-                console.log('yup');
-                if (b.body.deltaX > 0) {
+
+                console.log(b.body._dx)
+                if (b.body._dx > 0) {
 
                     b.body.velocity.x = -50;
                 } else {
@@ -439,6 +451,7 @@ PlayState.prototype = {
                 a.body.setSize(12, 16, 2, 0);
                 a.body.velocity.x = 0;
                 a.objectMario.size = false;
+                a.objectMario.small();
             } else {
                 this.goombas.forEachAlive(function (a) {
                     a.body.velocity.setTo(0);
@@ -454,13 +467,18 @@ PlayState.prototype = {
                 function playInfo() {
 
                     game.level.lives--;
-                    game.state.start("Info");
+                    if (game.level.lives == 0) {
+                        game.state.start("Over");
+                    } else {
+                        game.state.start("Info");
+                    }
                     this.mario.sprite.objectMario.alive = true;
                 }
             }
         }
     },
     marioPrizeBoxHit: function (a, b) {
+        game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
         if (a.body.touching.up && b.body.touching.down) {
             b.animations.stop();
             b.frameName = 'prize_box_hit';
@@ -568,9 +586,9 @@ PlayState.prototype = {
         this.walls.forEach(function (a) {
             game.debug.body(a);
         }, this);
-        // this.goombas.forEach(function (a) {
-        //     game.debug.body(a);
-        // }, this);
+        this.flags.forEach(function (a) {
+            game.debug.body(a);
+        }, this);
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         game.debug.body(this.mario.sprite);
