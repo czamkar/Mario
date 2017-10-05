@@ -5,5 +5,6 @@ game.state.add("Start", StartState);
 game.state.add("Info", InfoState);
 game.state.add("Time", TimeUp);
 game.state.add("Over", GameOver);
+game.state.add("End", EndState);
 
 game.state.start("Start");

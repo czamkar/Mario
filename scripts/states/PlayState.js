@@ -60,7 +60,7 @@ PlayState.prototype = {
         console.log(this.walls);
 
         this.labels.time.text = "400";
-        this.timeTotal = 30;
+        this.timeTotal = 400;
         this.time = game.time.create(false);
         this.time.loop(1000, this.updateCounter, this);
         this.time.start();
@@ -107,16 +107,16 @@ PlayState.prototype = {
             game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
             game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
         } else {
-         
+
             game.time.events.add(Phaser.Timer.QUARTER * 2, function () {
-              
+
                 var marioAlhpa = game.add.tween(this.mario.sprite).to({
                     alpha: [0.3, 1]
                 }, 200, Phaser.Easing.Linear.None, true, 0).repeat(10);
                 marioAlhpa.onComplete.add(function () {
                     console.log('koniec repeat')
-                   this.mario.sprite.alpha = 1;
-                   this.mario.sprite.objectMario.inviolable = false;
+                    this.mario.sprite.alpha = 1;
+                    this.mario.sprite.objectMario.inviolable = false;
                 }, this, true);
 
             }, this);
@@ -164,7 +164,23 @@ PlayState.prototype = {
         }
     },
     test: function (a, b) {
+        console.log('koniec');
         console.log(b);
+        if (b.index === 4) {
+            this.mario.sprite.animations.stop();
+            if (!this.mario.sprite.objectMario.size) {
+                this.mario.sprite.frameName = 'mario_idle_01';
+            } else {
+                this.mario.sprite.frameName = 'mario_idle_02';
+            }
+
+            var marioAlhpa2 = game.add.tween(this.mario.sprite).to({
+                alpha: 0
+            }, 1000, Phaser.Easing.Linear.None, true, 0);
+            marioAlhpa2.onComplete.add(function () {
+                game.state.start("End");
+            }, this, true);
+        }
         game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
     },
     addPoints: function (points, sprite) {
@@ -312,66 +328,45 @@ PlayState.prototype = {
             wallCrash3.anchor.setTo(0.5);
             var wallCrash4 = game.add.sprite(b.x + 8, b.y, 'wall1');
             wallCrash4.anchor.setTo(0.5);
-            var tween2 = game.add.tween(wallCrash1).to({
-                angle: -180,
-                y: wallCrash1.y - 30,
-                x: wallCrash1.x - 15
-            }, 300, Phaser.Easing.Linear.None, true);
-            tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash1).to({
-                    angle: -360,
-                    y: wallCrash1.y + 120,
-                    x: wallCrash1.x - 30
-                }, 700, Phaser.Easing.Linear.None, true);
-                tween.onComplete.add(function () {
-                    wallCrash1.kill();
-                }, this, true);
+ 
+            var tween11 = game.add.tween(wallCrash1).to({
+                x: [b.x - 15, b.x - 30, b.x - 45, b.x - 70],
+                y: [b.y - 20, b.y - 30, b.y + 70, b.y + 150],
+            }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
+                return Phaser.Math.bezierInterpolation(v, k);
+            });
+     
+            tween11.onComplete.add(function () {
+                wallCrash1.kill();
             }, this, true);
-            var tween2 = game.add.tween(wallCrash3).to({
-                angle: -180,
-                y: wallCrash3.y - 10,
-                x: wallCrash3.x - 15
-            }, 300, Phaser.Easing.Linear.None, true);
-            tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash3).to({
-                    angle: -360,
-                    y: wallCrash3.y + 120,
-                    x: wallCrash3.x - 30
-                }, 700, Phaser.Easing.Linear.None, true);
-                tween.onComplete.add(function () {
-                    wallCrash3.kill();
-                }, this, true);
+            var tween22 = game.add.tween(wallCrash2).to({
+                x: [b.x - 15, b.x - 30, b.x - 45, b.x - 70],
+                y: [b.y - 40, b.y - 50, b.y + 60, b.y + 140],
+            }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
+                return Phaser.Math.bezierInterpolation(v, k);
+            });
+            tween22.onComplete.add(function () {
+                wallCrash2.kill();
             }, this, true);
-            var tween2 = game.add.tween(wallCrash2).to({
-                angle: 180,
-                y: wallCrash2.y - 30,
-                x: wallCrash2.x + 15
-            }, 300, Phaser.Easing.Linear.None, true);
-            tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash2).to({
-                    angle: 90,
-                    y: wallCrash2.y + 120,
-                    x: wallCrash2.x + 45
-                }, 700, Phaser.Easing.Linear.None, true);
-                tween.onComplete.add(function () {
-                    wallCrash2.kill();
-                }, this, true);
+            var tween33 = game.add.tween(wallCrash3).to({
+                x: [b.x + 15, b.x + 30, b.x + 45, b.x + 70],
+                y: [b.y - 20, b.y - 30, b.y + 70, b.y + 150],
+            }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
+                return Phaser.Math.bezierInterpolation(v, k);
+            });
+            tween33.onComplete.add(function () {
+                wallCrash3.kill();
             }, this, true);
-            var tween2 = game.add.tween(wallCrash4).to({
-                angle: 180,
-                y: wallCrash4.y - 10,
-                x: wallCrash4.x + 15
-            }, 300, Phaser.Easing.Linear.None, true);
-            tween2.onComplete.add(function () {
-                var tween = game.add.tween(wallCrash4).to({
-                    angle: 90,
-                    y: wallCrash4.y + 120,
-                    x: wallCrash4.x + 45
-                }, 700, Phaser.Easing.Linear.None, true);
-                tween.onComplete.add(function () {
-                    wallCrash4.kill();
-                }, this, true);
+            var tween44 = game.add.tween(wallCrash4).to({
+                x: [b.x + 15, b.x + 30, b.x + 45, b.x + 70],
+                y: [b.y - 40, b.y - 50, b.y + 60, b.y + 140],
+            }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
+                return Phaser.Math.bezierInterpolation(v, k);
+            });
+            tween44.onComplete.add(function () {
+                wallCrash4.kill();
             }, this, true);
+ 
             var music = game.add.audio('wall_crash');
 
             music.play();
