@@ -108,12 +108,13 @@ PlayState.prototype = {
             game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
         } else {
          
-            game.time.events.add(Phaser.Timer.SECOND * 3, function () {
-                this.mario.sprite.alpha = 0.3;
+            game.time.events.add(Phaser.Timer.QUARTER * 2, function () {
+              
                 var marioAlhpa = game.add.tween(this.mario.sprite).to({
-                    alpha: 1
-                }, 100, Phaser.Easing.Linear.None, true, 0);
+                    alpha: [0.3, 1]
+                }, 200, Phaser.Easing.Linear.None, true, 0).repeat(10);
                 marioAlhpa.onComplete.add(function () {
+                    console.log('koniec repeat')
                    this.mario.sprite.alpha = 1;
                    this.mario.sprite.objectMario.inviolable = false;
                 }, this, true);
@@ -678,7 +679,7 @@ PlayState.prototype = {
         // }, this);
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
-        game.debug.body(this.mario.sprite);
+        // game.debug.body(this.mario.sprite);
         // game.debug.body(this.koopa.sprite);
         // game.debug.bodyInfo(this.koopa.sprite, 16, 32);
         // game.debug.bodyInfo(this.goombas.children[5], 16, 128);
