@@ -18,7 +18,11 @@ TimeUp.prototype = {
     },
     nextState: function () {
         game.level.lives--;
-        game.state.start("Play");
+        if (game.level.lives <= 0) {
+            game.state.start("Over");
+        } else {
+            game.state.start("Play");
+        }
     },
     update: function () {
 

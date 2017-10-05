@@ -14,6 +14,7 @@ var Mario = function (x, y, game) {
     this.onFlag = false;
     this.facing = "idle";
     this.frozen = false;
+    this.inviolable = false;
     this.anComplete = false;
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
     game.camera.follow(this.sprite);

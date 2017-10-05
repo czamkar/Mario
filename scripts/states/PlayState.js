@@ -4,8 +4,8 @@ var PlayState = function (game) {
 PlayState.prototype = {
 
     create: function () {
-        this.theme = game.add.audio('theme');     
-        this.theme.loop = true;   
+        this.theme = game.add.audio('theme');
+        this.theme.loop = true;
         this.theme.play();
 
         game.stage.backgroundColor = "#6888ff";
@@ -13,9 +13,6 @@ PlayState.prototype = {
         this.mushrooms = game.add.group();
 
         this.flags = game.add.group();
-
-        //createFromObjects(name, gid, key, frame, exists, autoCull, group, CustomClass, adjustY)
-
 
         this.map.map.createFromObjects('walls', 19, 'mapElement', 'flag_04', true, false, this.flags);
         this.map.map.createFromObjects('walls', 12, 'mapElement', 'flag_03', true, false, this.flags);
@@ -63,7 +60,7 @@ PlayState.prototype = {
         console.log(this.walls);
 
         this.labels.time.text = "400";
-        this.timeTotal = 400;
+        this.timeTotal = 30;
         this.time = game.time.create(false);
         this.time.loop(1000, this.updateCounter, this);
         this.time.start();
@@ -76,7 +73,7 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 500;
     },
     update: function () {
-        if(this.mario.sprite.y > 260){
+        if (this.mario.sprite.y > 260) {
             game.level.lives--;
             if (game.level.lives == 0) {
                 game.state.start("Over");
@@ -104,9 +101,25 @@ PlayState.prototype = {
         game.physics.arcade.collide(this.goombas, this.walls);
         game.physics.arcade.collide(this.goombas, this.PrizeBoxGroup);
         game.physics.arcade.collide(this.goombas);
-        game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
+
         game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
-        game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
+        if (!this.mario.sprite.objectMario.inviolable) {
+            game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
+            game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
+        } else {
+         
+            game.time.events.add(Phaser.Timer.SECOND * 3, function () {
+                this.mario.sprite.alpha = 0.3;
+                var marioAlhpa = game.add.tween(this.mario.sprite).to({
+                    alpha: 1
+                }, 100, Phaser.Easing.Linear.None, true, 0);
+                marioAlhpa.onComplete.add(function () {
+                   this.mario.sprite.alpha = 1;
+                   this.mario.sprite.objectMario.inviolable = false;
+                }, this, true);
+
+            }, this);
+        }
         game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.marioPrizeBoxHit, null, this);
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
         if (this.mushroom) {
@@ -516,6 +529,7 @@ PlayState.prototype = {
                 a.y -= 1;
                 a.body.setSize(11, 16, 2, 0);
                 a.body.velocity.x = 0;
+                a.objectMario.inviolable = true;
                 a.objectMario.size = false;
                 a.objectMario.small();
             } else {
