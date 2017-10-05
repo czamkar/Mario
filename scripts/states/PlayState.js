@@ -4,26 +4,31 @@ var PlayState = function (game) {
 PlayState.prototype = {
 
     create: function () {
+        this.theme = game.add.audio('theme');     
+        this.theme.loop = true;   
+        this.theme.play();
+
         game.stage.backgroundColor = "#6888ff";
         this.map = new Map(game);
         this.mushrooms = game.add.group();
 
         this.flags = game.add.group();
-        this.flags.enableBody = true;
 
         //createFromObjects(name, gid, key, frame, exists, autoCull, group, CustomClass, adjustY)
 
 
         this.map.map.createFromObjects('walls', 19, 'mapElement', 'flag_04', true, false, this.flags);
         this.map.map.createFromObjects('walls', 12, 'mapElement', 'flag_03', true, false, this.flags);
-        this.flags.forEach(function (a) {
+
+
+        this.flagPole = game.add.group();
+        this.flagPole.enableBody = true
+        this.map.map.createFromObjects('walls', 32, 'mapElement', 'flag_01', true, false, this.flagPole);
+        this.flagPole.forEach(function (a) {
             a.body.allowGravity = false;
             a.body.immovable = true;
             a.body.setSize(16, 16, 0, 0);
         }, this);
-
-
-
 
         this.walls = game.add.group();
         this.walls.enableBody = true;
@@ -39,7 +44,7 @@ PlayState.prototype = {
         this.PrizeBoxGroup.enableBody = true;
         this.PrizeBox.createPrizeBox();
         this.labels = new Labels(game, this.map);
-        this.mario = new Mario(16 * 55, 0, game);
+        this.mario = new Mario(16 * 3, 200, game);
 
         this.goombas = game.add.group();
         this.goombas.enableBody = true;
@@ -71,7 +76,15 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 500;
     },
     update: function () {
-        if (this.timeTotal < 0) {
+        if(this.mario.sprite.y > 260){
+            game.level.lives--;
+            if (game.level.lives == 0) {
+                game.state.start("Over");
+            } else {
+                game.state.start("Info");
+            }
+        }
+        if (this.timeTotal <= 0) {
             game.state.start("Time");
         }
 
@@ -82,9 +95,10 @@ PlayState.prototype = {
             this.koopa.sprite.kill();
         }
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
+
         game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.mario.sprite, this.walls, this.marioWallHit, null, this);
-        game.physics.arcade.collide(this.mario.sprite, this.flags, this.marioGrabFlag, null, this);
+        game.physics.arcade.collide(this.mario.sprite, this.flagPole, this.marioGrabFlag, null, this);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
         game.physics.arcade.collide(this.goombas, this.walls);
@@ -136,10 +150,19 @@ PlayState.prototype = {
         }
     },
     test: function (a, b) {
-        console.log('x');
+        console.log(b);
+        game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
     },
     addPoints: function (points, sprite) {
-        var point = game.add.bitmapText(sprite.x + 10, sprite.y - 10, "marioFont", points, 10);
+        console.log(sprite.key);
+        if (sprite.key == "mapElement") {
+
+            var point = game.add.bitmapText(sprite.x + 8, sprite.y - 16, "marioFont", points, 10);
+        } else {
+
+            var point = game.add.bitmapText(sprite.x, sprite.y, "marioFont", points, 10);
+        }
+
         point.anchor.setTo(0.5, 0.5);
         var tween_points = game.add.tween(point).to({
             y: point.y - 20
@@ -181,35 +204,76 @@ PlayState.prototype = {
         }
     },
     marioGrabFlag: function (a, b) {
-        a.frameName = 'mario_idle_01';
+        a.objectMario.frozen = true;
+        a.animations.stop();
+        if (!a.objectMario.size) {
+
+            a.frameName = 'mario_stop';
+        } else {
+
+            a.frameName = 'mario_big_stop';
+        }
+        a.x += 8;
+        a.scale.x = -1;
         console.log(b);
+        this.flagPole.forEach(function (a) {
+            a.body.destroy();
+        });
         if (!this.mario.sprite.objectMario.onFlag) {
-            var tween = game.add.tween(b).to({
+            a.body.velocity.setTo(0);
+            a.body.allowGravity = false;
+            var marioTween = game.add.tween(a).to({
+                y: 192
+            }, 2000, Phaser.Easing.None, true);
+            var tween = game.add.tween(this.flags.children[0]).to({
                 y: 168
-            }, 2000, Phaser.Easing.None, true, );
+            }, 2000, Phaser.Easing.None, true);
             var tween2 = game.add.tween(this.flags.children[1]).to({
                 y: 168
             }, 2000, Phaser.Easing.None, true, );
-            var tween3 = game.add.tween(a).to({
-                y: 168
-            }, 2000, Phaser.Easing.None, true, );
-            tween3.onComplete.add(function () {
-                a.animations.play('walk');
-                a.body.velocity.x = 120;
+            // var tween3 = game.add.tween(a).to({
+            //     y: 168
+            // }, 2000, Phaser.Easing.None, true, );
+            marioTween.onComplete.add(function () {
+                a.scale.x = 1;
+                a.x += 13;
+                game.time.events.add(Phaser.Timer.SECOND * 1, this.marioWalk, this);
             }, this, true);
+            // tween2.onComplete.add(function () {
+            //     a.animations.play('walk');
+            //     a.body.velocity.x = 120;
+            // }, this, true);
         }
         this.mario.sprite.objectMario.onFlag = true;
 
     },
+    marioWalk: function () {
+        this.mario.sprite.body.allowGravity = true;
+        this.mario.sprite.body.velocity.x = 120;
+        if (!this.mario.sprite.objectMario.size) {
+            this.mario.sprite.frameName = 'mario_walk_02';
+            this.mario.sprite.animations.play('walkSmall', 15, true);
+        } else {
+
+            this.mario.sprite.frameName = 'mario_big_walk_02';
+            this.mario.sprite.animations.play('walkBig', 15, true);
+        }
+
+    },
     wallGoombaHit: function (a, b) {
-        console.log('x');
         b.animations.stop();
         b.scale.y = -1;
         b.body.destroy();
+        // var tweenGoombaDie = game.add.tween(b).to({
+        //     x: [b.x + 15,b.x + 30 , b.x + 45,  b.x + 70],
+        //     y: [b.y - 20, b.y - 30, b.y + 70, b.y + 150]
+        // }, 500, Phaser.Easing.None, true, );
         var tweenGoombaDie = game.add.tween(b).to({
-            x: b.x + 10,
-            y: b.y + 10
-        }, 500, Phaser.Easing.None, true, );
+            x: [b.x + 15, b.x + 30, b.x + 45, b.x + 70],
+            y: [b.y - 20, b.y - 30, b.y + 70, b.y + 150],
+        }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
+            return Phaser.Math.bezierInterpolation(v, k);
+        });
 
         tweenGoombaDie.onComplete.add(function () {
 
@@ -367,15 +431,15 @@ PlayState.prototype = {
             if (b.frameName != 'koopa_dead') {
                 console.log('b');
                 if (a.objectMario.size) {
-
-                    if (b.body.deltaX > 0) {
-
-                        b.body.velocity.x = 50;
+                    a.y -= 1;
+                    if (b.body.velocity.x > 0) {
+                        b.scale.x = 1;
+                        b.body.velocity.x = -30;
                     } else {
-
-                        b.body.velocity.x = -50;
+                        b.scale.x = -1;
+                        b.body.velocity.x = 30;
                     }
-                    a.objectMario.size = false;
+                    a.objectMario.small();
                 } else {
                     game.level.lives--;
                     if (game.level.lives == 0) {
@@ -402,7 +466,7 @@ PlayState.prototype = {
 
                             b.body.velocity.x = -50;
                         }
-                        a.objectMario.size = false;
+                        // a.objectMario.size = false;
                     } else {
                         game.level.lives--;
                         if (game.level.lives == 0) {
@@ -428,10 +492,12 @@ PlayState.prototype = {
             var music = game.add.audio('stomp');
 
             music.play();
+            b.body.destroy();
             game.time.events.add(Phaser.Timer.HALF * 1, function () {
 
                 // a.body.bounce.y = 0;
                 b.kill();
+
             }, this);
 
         }
@@ -439,8 +505,8 @@ PlayState.prototype = {
             console.log(a.objectMario.size);
             if (a.objectMario.size) {
 
-                console.log(b.body._dx)
-                if (b.body._dx > 0) {
+                console.log(b.body.velocity.x);
+                if (b.body.velocity.x > 0) {
 
                     b.body.velocity.x = -50;
                 } else {
@@ -448,7 +514,7 @@ PlayState.prototype = {
                     b.body.velocity.x = 50;
                 }
                 a.y -= 1;
-                a.body.setSize(12, 16, 2, 0);
+                a.body.setSize(11, 16, 2, 0);
                 a.body.velocity.x = 0;
                 a.objectMario.size = false;
                 a.objectMario.small();
@@ -461,6 +527,8 @@ PlayState.prototype = {
                 var music = game.add.audio('die');
 
                 music.play();
+                this.mario.sprite.frameName = 'mario_dead';
+                this.mario.sprite.objectMario.die();
                 music.onStop.add(playInfo, this);
                 this.mario.sprite.body.velocity.setTo(0, 0);
 
@@ -478,7 +546,8 @@ PlayState.prototype = {
         }
     },
     marioPrizeBoxHit: function (a, b) {
-        game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
+        console.log(b);
+
         if (a.body.touching.up && b.body.touching.down) {
             b.animations.stop();
             b.frameName = 'prize_box_hit';
@@ -496,10 +565,10 @@ PlayState.prototype = {
             if (check()) {
                 var coin = game.add.sprite(b.x + 2, b.y - 16, 'mapElement', 'prize_box_coin_03');
                 coin.animations.add('coin', Phaser.Animation.generateFrameNames('prize_box_coin_', 0, 3, '', 2), 30, true);
-                coin.animations.play('coin', 3, false);
+                coin.animations.play('coin', 15, true);
                 var tween2 = game.add.tween(coin).to({
                     y: coin.y - 30
-                }, 300, Phaser.Easing.None, true, 0, 0, true);
+                }, 200, Phaser.Easing.None, true, 0, 0, true);
                 tween2.onComplete.add(function () {
                     game.level.coins++;
                     if (game.level.coins < 10) {
@@ -530,8 +599,8 @@ PlayState.prototype = {
                 this.mushroom = game.add.sprite(b.x, b.y, 'mapElement', 'mashroom');
 
                 game.physics.arcade.enable(this.mushroom);
-                this.mushroom.body.bounce.x = 0.8;
-                this.mushroom.body.setSize(12, 16, 0, 0);
+                this.mushroom.body.bounce.x = 1;
+                this.mushroom.body.setSize(16, 16, 0, 0);
                 this.mushroom.alive = false;
                 this.mushrooms.add(this.mushroom);
                 var tween2 = game.add.tween(this.mushroom).to({
@@ -539,7 +608,8 @@ PlayState.prototype = {
                 }, 200, Phaser.Easing.Out, true, 0, 0, false);
                 tween2.onComplete.add(function () {
                     this.mushroom.alive = true;
-                    this.mushroom.body.velocity.x = 30;
+                    this.mushroom.y -= 2;
+                    this.mushroom.body.velocity.x = 40;
                 }, this, true);
 
 
@@ -574,21 +644,24 @@ PlayState.prototype = {
 
 
 
-        // game.debug.text('Mario  x:  ' + this.mario.sprite.x, 32, 88);
+        game.debug.text('Mario  y:  ' + this.mario.sprite.y, 32, 88);
         // game.debug.text('koppa velo x:  ' + this.koopa.sprite.x, 32, 108);
 
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x + game.width / 2 + 16), 32, 148);
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x - game.width / 2 + 16), 32, 168);
         // game.debug.cameraInfo(game.camera, 32, 32);
-        // if (this.mushroom) {
-        //     game.debug.body(this.mushroom);
-        // }
+        if (this.mushroom) {
+            game.debug.body(this.mushroom);
+        }
         this.walls.forEach(function (a) {
             game.debug.body(a);
         }, this);
-        this.flags.forEach(function (a) {
+        this.flagPole.forEach(function (a) {
             game.debug.body(a);
         }, this);
+        // this.flags.forEach(function (a) {
+        //     game.debug.body(a);
+        // }, this);
         // console.log(this.goombas);
         // game.debug.spriteInfo(this.mario.sprite, 32, 32);
         game.debug.body(this.mario.sprite);

@@ -23,13 +23,14 @@ var Mario = function (x, y, game) {
     this.sprite.body.velocity.x = 0;
     this.sprite.body.velocity.y = 0;
 
-    this.sprite.body.setSize(12, 16, 2, 0);
+    this.sprite.body.setSize(11, 16, 2, 0);
 
 
     // this.sprite.body.bounce.y = 0.2;
 }
 Mario.prototype.controls = function (value) {
-    if (this.alive & !this.onFlag) {
+
+    if (this.alive && !this.onFlag) {
         if (!this.frozen) {
             if (this.cursors.right.isDown) {
                 this.sprite.body.velocity.x = 100;
@@ -43,6 +44,7 @@ Mario.prototype.controls = function (value) {
                         }
                     }
                     if (!this.size) {
+                        console.log('tak');
                         this.sprite.animations.play('walkSmall');
                     } else {
                         this.sprite.animations.play('walkBig');
@@ -100,12 +102,12 @@ Mario.prototype.growUp = function () {
         this.anComplete = true;
 
         this.sprite.frameName = "mario_idle_01";
-        this.sprite.body.setSize(12, 32, 2, 0);
+        this.sprite.body.setSize(11, 32, 2, 0);
         this.sprite.body.allowGravity = false;
         this.sprite.body.velocity.x = 0;
         this.sprite.body.velocity.y = 0;
         var anim = this.sprite.animations.play('grow');
-        anim.delay = 250;
+        anim.delay = 100;
         anim.onComplete.add(animationStopped, this);
         anim.enableUpdate = true;
         anim.onComplete.add(animationStopped, this);
@@ -125,18 +127,19 @@ Mario.prototype.growUp = function () {
     }
 }
 Mario.prototype.small = function () {
-
+    this.frozen = true;
     this.anComplete = true;
+    this.size = false;
     this.sprite.frameName = "mario_idle_02";
-    this.sprite.body.setSize(12, 16, 2, 0);
+    this.sprite.body.setSize(11, 16, 2, 0);
     this.sprite.body.allowGravity = false;
     this.sprite.body.velocity.x = 0;
     this.sprite.body.velocity.y = 0;
-    var anim = this.sprite.animations.play('grow').reverseOnce();
-    anim.delay = 500;
+    var anim = this.sprite.animations.play('grow');
+    anim.delay = 100;
+    anim.reverse = true;
     anim.onComplete.add(animationStopped, this);
     anim.enableUpdate = true;
-    anim.onComplete.add(animationStopped, this);
 
     function animationStopped(sprite, animation) {
         this.sprite.y -= 1;
@@ -146,4 +149,12 @@ Mario.prototype.small = function () {
         this.sprite.frameName = "mario_idle_01";
     }
 
+}
+Mario.prototype.die = function () {
+    this.frozen = true;
+    this.sprite.body.allowGravity = false;
+    this.sprite.animations.stop();
+    var tween = game.add.tween(this.sprite).to({
+        y: [168, 260]
+    }, 1000, Phaser.Easing.None, true);
 }

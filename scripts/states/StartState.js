@@ -5,6 +5,7 @@ StartState.prototype = {
     preload: function () {
         game.load.bitmapFont('marioFont', 'assets/font/mario_font.png', 'assets/font/mario_font.fnt');
         game.load.image('tiles', 'assets/map/tiles.png');
+        game.load.image('logo', 'assets/images/logo.png');
         game.load.tilemap('map', 'assets/map/map.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.atlas('mapElement', 'assets/map/tiles.png', 'assets/map/tiles.json');
         game.load.atlas('enemies', 'assets/images/enemies/enemies.png', 'assets/images/enemies/enemies.json');
@@ -23,6 +24,7 @@ StartState.prototype = {
         game.load.audio('stomp', 'assets/sounds/stomp.mp3');
         game.load.audio('timeout', 'assets/sounds/timeout.mp3');
         game.load.audio('wall_crash', 'assets/sounds/wall_crash.mp3');
+        game.load.audio('theme', 'assets/sounds/theme.mp3');
 
         //6888ff  kolor nieba
     },
@@ -54,19 +56,20 @@ StartState.prototype = {
 
         this.labels = new Labels(game, this.map);
 
-        this.mario = new Mario(32, 200, game);
-
+        this.mario = game.add.sprite(32, 200, 'mario', 'mario_idle_01');
+        this.mario.anchor.setTo(0.5);
         var startLabel = game.add.bitmapText(game.width / 2, game.height / 2 + 30, "marioFont", "Press spacebar to play", 15);
         startLabel.anchor.setTo(0.5);
 
+        this.logo = game.add.sprite(game.width / 2, 80, 'logo');
+        this.logo.anchor.setTo(0.5);
         this.startButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     },
     update: function () {
-        this.mario.controls();
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
         game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide']);
 
-        if (this.startButton.isDown || this.mario.sprite.x > 200) {
+        if (this.startButton.isDown ) {
             game.state.start("Info");
         }
     }
