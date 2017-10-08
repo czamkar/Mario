@@ -234,6 +234,9 @@ PlayState.prototype = {
         }
     },
     marioGrabFlag: function (a, b) {
+        this.theme.stop();
+        var music = game.add.audio('stageClear');
+        music.play();
         a.objectMario.frozen = true;
         a.animations.stop();
         if (!a.objectMario.size) {
@@ -328,14 +331,14 @@ PlayState.prototype = {
             wallCrash3.anchor.setTo(0.5);
             var wallCrash4 = game.add.sprite(b.x + 8, b.y, 'wall1');
             wallCrash4.anchor.setTo(0.5);
- 
+
             var tween11 = game.add.tween(wallCrash1).to({
                 x: [b.x - 15, b.x - 30, b.x - 45, b.x - 70],
                 y: [b.y - 20, b.y - 30, b.y + 70, b.y + 150],
             }, 1000, Phaser.Easing.Quadratic.Out, true).interpolation(function (v, k) {
                 return Phaser.Math.bezierInterpolation(v, k);
             });
-     
+
             tween11.onComplete.add(function () {
                 wallCrash1.kill();
             }, this, true);
@@ -366,7 +369,7 @@ PlayState.prototype = {
             tween44.onComplete.add(function () {
                 wallCrash4.kill();
             }, this, true);
- 
+
             var music = game.add.audio('wall_crash');
 
             music.play();
@@ -417,22 +420,16 @@ PlayState.prototype = {
                 var site;
                 if (a.x + 8 <= b.x) {
                     game.time.events.add(Phaser.Timer.QUARTER * 0.1, function () {
-
-
                         b.body.velocity.x = 130;
                         // b.kill();
                     }, this);
 
                 } else if (a.x + 8 > b.x) {
                     game.time.events.add(Phaser.Timer.QUARTER * 0.1, function () {
-
-
                         b.body.velocity.x = -130;
                         // b.kill();
                     }, this);
                 }
-
-
             }
         }
         if (a.body.touching.right || a.body.touching.left) {
@@ -451,6 +448,7 @@ PlayState.prototype = {
                     a.objectMario.small();
                 } else {
                     game.level.lives--;
+                    this.theme.stop();
                     if (game.level.lives == 0) {
                         game.state.start("Over");
                     } else {
@@ -477,6 +475,7 @@ PlayState.prototype = {
                         }
                         // a.objectMario.size = false;
                     } else {
+                        this.theme.stop();
                         game.level.lives--;
                         if (game.level.lives == 0) {
                             game.state.start("Over");
@@ -488,6 +487,15 @@ PlayState.prototype = {
             }
         }
 
+    },
+    playInfo: function(){
+        game.level.lives--;
+        if (game.level.lives == 0) {
+            game.state.start("Over");
+        } else {
+            game.state.start("Info");
+        }
+        this.mario.sprite.objectMario.alive = true;
     },
     marioGommbaHit: function (a, b) {
         if (a.body.touching.down) {
@@ -510,7 +518,9 @@ PlayState.prototype = {
             }, this);
 
         }
+
         if (a.body.touching.right || a.body.touching.left) {
+            
             console.log(a.objectMario.size);
             if (a.objectMario.size) {
 
@@ -530,17 +540,45 @@ PlayState.prototype = {
                 a.objectMario.small();
             } else {
                 this.goombas.forEachAlive(function (a) {
+                    a.body.destroy();
+                }, this);
+                this.mario.sprite.objectMario.alive = false;
+        
+                this.theme.stop();
+                var music = game.add.audio('die');
+                music.play();
+                this.mario.sprite.frameName = 'mario_dead';
+                this.mario.sprite.objectMario.die();
+                music.onStop.addOnce(this.playInfo, this);
+                this.mario.sprite.body.velocity.setTo(0, 0);
+
+    
+            }
+        }/*
+        if (a.body.touching.up) {
+            if (a.objectMario.size) {
+                a.y -= 1;
+                a.body.setSize(11, 16, 2, 0);
+                a.body.velocity.x = 0;
+                a.objectMario.inviolable = true;
+                a.objectMario.size = false;
+                a.objectMario.small();
+            } else {
+                //a.body.destroy();
+                this.goombas.forEachAlive(function (a) {
                     a.body.velocity.setTo(0);
                 }, this);
+                
+                b.body.destroy();
                 this.mario.sprite.objectMario.alive = false;
                 console.log('nope');
                 var music = game.add.audio('die');
-
+                this.theme.stop();
                 music.play();
                 this.mario.sprite.frameName = 'mario_dead';
                 this.mario.sprite.objectMario.die();
                 music.onStop.add(playInfo, this);
-                this.mario.sprite.body.velocity.setTo(0, 0);
+               // this.mario.sprite.body.velocity.setTo(0, 0);
 
                 function playInfo() {
 
@@ -553,7 +591,8 @@ PlayState.prototype = {
                     this.mario.sprite.objectMario.alive = true;
                 }
             }
-        }
+
+        }*/
     },
     marioPrizeBoxHit: function (a, b) {
         console.log(b);

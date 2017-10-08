@@ -20,7 +20,7 @@ StartState.prototype = {
         game.load.audio('jump', 'assets/sounds/jump.mp3');
         game.load.audio('kick', 'assets/sounds/kick.mp3');
         game.load.audio('powerup', 'assets/sounds/powerup.mp3');
-        game.load.audio('stageClear', 'assets/sounds/stageClear.mp3');
+        game.load.audio('stageClear', 'assets/sounds/stage_clear.mp3');
         game.load.audio('stomp', 'assets/sounds/stomp.mp3');
         game.load.audio('timeout', 'assets/sounds/timeout.mp3');
         game.load.audio('wall_crash', 'assets/sounds/wall_crash.mp3');
