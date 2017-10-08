@@ -153,9 +153,10 @@ Mario.prototype.small = function () {
 }
 Mario.prototype.die = function () {
     this.frozen = true;
- //   this.sprite.body.allowGravity = false;
+   this.sprite.body.allowGravity = false;
     this.sprite.animations.stop();
     var tween = game.add.tween(this.sprite).to({
         y: [168, 260]
     }, 1000, Phaser.Easing.None, true);
+
 }

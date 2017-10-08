@@ -4,6 +4,8 @@ var PlayState = function (game) {
 PlayState.prototype = {
 
     create: function () {
+        this.musicDie = game.add.audio('die');
+
         this.theme = game.add.audio('theme');
         this.theme.loop = true;
         this.theme.play();
@@ -73,93 +75,95 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 500;
     },
     update: function () {
-        if (this.mario.sprite.y > 260) {
-            game.level.lives--;
-            if (game.level.lives == 0) {
-                game.state.start("Over");
-            } else {
-                game.state.start("Info");
+        if (this.mario.sprite.y > 320) {
+            this.mario.sprite.objectMario.alive = false;
+            if (this.mario.sprite.body !== null) {
+                this.mario.sprite.body.destroy();
+                this.theme.stop();
+                this.musicDie.play();
+                this.musicDie.onStop.addOnce(this.playInfo, this);
             }
         }
         if (this.timeTotal <= 0) {
             game.state.start("Time");
         }
-
-        this.enemiesToAccelerate(this.mario.sprite.x);
-        if (this.koopa.sprite.x > (this.mario.sprite.x + game.width / 2 + 16) && this.koopa.sprite.frameName == "koopa_dead") {
-            this.koopa.sprite.kill();
-        } else if (this.koopa.sprite.x < (this.mario.sprite.x - game.width / 2 - 16) && this.koopa.sprite.frameName == "koopa_dead") {
-            this.koopa.sprite.kill();
-        }
-        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
-
-        game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['collide']);
-        game.physics.arcade.collide(this.mario.sprite, this.walls, this.marioWallHit, null, this);
-        game.physics.arcade.collide(this.mario.sprite, this.flagPole, this.marioGrabFlag, null, this);
-        game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
-        game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
-        game.physics.arcade.collide(this.goombas, this.walls);
-        game.physics.arcade.collide(this.goombas, this.PrizeBoxGroup);
-        game.physics.arcade.collide(this.goombas);
-
-        game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
-        if (!this.mario.sprite.objectMario.inviolable) {
-            game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
-            game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
-        } else {
-
-            game.time.events.add(Phaser.Timer.QUARTER * 2, function () {
-
-                var marioAlhpa = game.add.tween(this.mario.sprite).to({
-                    alpha: [0.3, 1]
-                }, 200, Phaser.Easing.Linear.None, true, 0).repeat(10);
-                marioAlhpa.onComplete.add(function () {
-                    console.log('koniec repeat')
-                    this.mario.sprite.alpha = 1;
-                    this.mario.sprite.objectMario.inviolable = false;
-                }, this, true);
-
-            }, this);
-        }
-        game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.marioPrizeBoxHit, null, this);
-        game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
-        if (this.mushroom) {
-            if (this.mushroom.alive) {
-                game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
-                game.physics.arcade.collide(this.mushrooms, this.walls);
-                game.physics.arcade.collide(this.mushrooms, this.PrizeBoxGroup, this.test, null, this);
+        if (this.mario.sprite.objectMario.alive) {
+            this.enemiesToAccelerate(this.mario.sprite.x);
+            if (this.koopa.sprite.x > (this.mario.sprite.x + game.width / 2 + 16) && this.koopa.sprite.frameName == "koopa_dead") {
+                this.koopa.sprite.kill();
+            } else if (this.koopa.sprite.x < (this.mario.sprite.x - game.width / 2 - 16) && this.koopa.sprite.frameName == "koopa_dead") {
+                this.koopa.sprite.kill();
             }
-            game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['ground']);
-            game.physics.arcade.overlap(this.mario.sprite, this.mushrooms, this.marioMushroomHit, null, this);
-        }
-        if (!this.mario.sprite.objectMario.onFlag) {
-            if (this.jumpButton.isDown && game.time.now > this.timerJump && (this.mario.sprite.body.blocked.down || this.mario.sprite.body.touching.down)) {
-                this.mario.sprite.frameName = "mario_jump";
-                this.mario.sprite.body.velocity.y = -260;
+            game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['ground']);
 
-                var music = game.add.audio('jump');
+            game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['collide']);
+            game.physics.arcade.collide(this.mario.sprite, this.walls, this.marioWallHit, null, this);
+            game.physics.arcade.collide(this.mario.sprite, this.flagPole, this.marioGrabFlag, null, this);
+            game.physics.arcade.collide(this.goombas, this.map.mapLayers['ground']);
+            game.physics.arcade.collide(this.goombas, this.map.mapLayers['collide']);
+            game.physics.arcade.collide(this.goombas, this.walls);
+            game.physics.arcade.collide(this.goombas, this.PrizeBoxGroup);
+            game.physics.arcade.collide(this.goombas);
 
-                music.play();
-                this.timerJump = game.time.now + 750;
-            }
-            if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down && !this.mario.sprite.objectMario.frozen) {
-                if (!this.mario.sprite.objectMario.size) {
-
-                    this.mario.sprite.frameName = "mario_jump";
-                } else {
-                    this.mario.sprite.frameName = "mario_big_jump";
-                }
-                this.mario.controls("jump");
-            } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down && !this.mario.sprite.objectMario.frozen) {
-                if (!this.mario.sprite.objectMario.size) {
-
-                    this.mario.sprite.frameName = "mario_jump";
-                } else {
-                    this.mario.sprite.frameName = "mario_big_jump";
-                }
-                this.mario.controls("jump");
+            game.physics.arcade.collide(this.koopa.sprite, this.map.mapLayers['ground']);
+            if (!this.mario.sprite.objectMario.inviolable) {
+                game.physics.arcade.collide(this.mario.sprite, this.goombas, this.marioGommbaHit, null, this);
+                game.physics.arcade.collide(this.mario.sprite, this.koopa.sprite, this.marioKoopaHit, null, this);
             } else {
-                this.mario.controls("");
+
+                game.time.events.add(Phaser.Timer.QUARTER * 2, function () {
+
+                    var marioAlhpa = game.add.tween(this.mario.sprite).to({
+                        alpha: [0.3, 1]
+                    }, 200, Phaser.Easing.Linear.None, true, 0).repeat(10);
+                    marioAlhpa.onComplete.add(function () {
+                        console.log('koniec repeat')
+                        this.mario.sprite.alpha = 1;
+                        this.mario.sprite.objectMario.inviolable = false;
+                    }, this, true);
+
+                }, this);
+            }
+            game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.marioPrizeBoxHit, null, this);
+            game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
+            if (this.mushroom) {
+                if (this.mushroom.alive) {
+                    game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
+                    game.physics.arcade.collide(this.mushrooms, this.walls);
+                    game.physics.arcade.collide(this.mushrooms, this.PrizeBoxGroup, this.test, null, this);
+                }
+                game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['ground']);
+                game.physics.arcade.overlap(this.mario.sprite, this.mushrooms, this.marioMushroomHit, null, this);
+            }
+            if (!this.mario.sprite.objectMario.onFlag) {
+                if (this.jumpButton.isDown && game.time.now > this.timerJump && (this.mario.sprite.body.blocked.down || this.mario.sprite.body.touching.down)) {
+                    this.mario.sprite.frameName = "mario_jump";
+                    this.mario.sprite.body.velocity.y = -260;
+
+                    var music = game.add.audio('jump');
+
+                    music.play();
+                    this.timerJump = game.time.now + 750;
+                }
+                if (!this.mario.sprite.body.blocked.down && !this.mario.sprite.body.touching.down && !this.mario.sprite.objectMario.frozen) {
+                    if (!this.mario.sprite.objectMario.size) {
+
+                        this.mario.sprite.frameName = "mario_jump";
+                    } else {
+                        this.mario.sprite.frameName = "mario_big_jump";
+                    }
+                    this.mario.controls("jump");
+                } else if (this.mario.sprite.body.touching.down && this.mario.sprite.body.blocked.down && !this.mario.sprite.objectMario.frozen) {
+                    if (!this.mario.sprite.objectMario.size) {
+
+                        this.mario.sprite.frameName = "mario_jump";
+                    } else {
+                        this.mario.sprite.frameName = "mario_big_jump";
+                    }
+                    this.mario.controls("jump");
+                } else {
+                    this.mario.controls("");
+                }
             }
         }
     },
@@ -488,7 +492,8 @@ PlayState.prototype = {
         }
 
     },
-    playInfo: function(){
+    playInfo: function () {
+        console.log(this.musicDie.isPlaying);
         game.level.lives--;
         if (game.level.lives == 0) {
             game.state.start("Over");
@@ -511,7 +516,6 @@ PlayState.prototype = {
             music.play();
             b.body.destroy();
             game.time.events.add(Phaser.Timer.HALF * 1, function () {
-
                 // a.body.bounce.y = 0;
                 b.kill();
 
@@ -520,16 +524,10 @@ PlayState.prototype = {
         }
 
         if (a.body.touching.right || a.body.touching.left) {
-            
-            console.log(a.objectMario.size);
             if (a.objectMario.size) {
-
-                console.log(b.body.velocity.x);
                 if (b.body.velocity.x > 0) {
-
                     b.body.velocity.x = -50;
                 } else {
-
                     b.body.velocity.x = 50;
                 }
                 a.y -= 1;
@@ -543,56 +541,59 @@ PlayState.prototype = {
                     a.body.destroy();
                 }, this);
                 this.mario.sprite.objectMario.alive = false;
-        
+
                 this.theme.stop();
-                var music = game.add.audio('die');
-                music.play();
+
+
                 this.mario.sprite.frameName = 'mario_dead';
                 this.mario.sprite.objectMario.die();
-                music.onStop.addOnce(this.playInfo, this);
+                this.musicDie.play();
+                this.musicDie.onStop.addOnce(this.playInfo, this);
+
                 this.mario.sprite.body.velocity.setTo(0, 0);
 
-    
+
             }
-        }/*
-        if (a.body.touching.up) {
-            if (a.objectMario.size) {
-                a.y -= 1;
-                a.body.setSize(11, 16, 2, 0);
-                a.body.velocity.x = 0;
-                a.objectMario.inviolable = true;
-                a.objectMario.size = false;
-                a.objectMario.small();
-            } else {
-                //a.body.destroy();
-                this.goombas.forEachAlive(function (a) {
-                    a.body.velocity.setTo(0);
-                }, this);
-                
-                b.body.destroy();
-                this.mario.sprite.objectMario.alive = false;
-                console.log('nope');
-                var music = game.add.audio('die');
-                this.theme.stop();
-                music.play();
-                this.mario.sprite.frameName = 'mario_dead';
-                this.mario.sprite.objectMario.die();
-                music.onStop.add(playInfo, this);
-               // this.mario.sprite.body.velocity.setTo(0, 0);
-
-                function playInfo() {
-
-                    game.level.lives--;
-                    if (game.level.lives == 0) {
-                        game.state.start("Over");
+        }
+        /*
+                if (a.body.touching.up) {
+                    if (a.objectMario.size) {
+                        a.y -= 1;
+                        a.body.setSize(11, 16, 2, 0);
+                        a.body.velocity.x = 0;
+                        a.objectMario.inviolable = true;
+                        a.objectMario.size = false;
+                        a.objectMario.small();
                     } else {
-                        game.state.start("Info");
-                    }
-                    this.mario.sprite.objectMario.alive = true;
-                }
-            }
+                        //a.body.destroy();
+                        this.goombas.forEachAlive(function (a) {
+                            a.body.velocity.setTo(0);
+                        }, this);
+                        
+                        b.body.destroy();
+                        this.mario.sprite.objectMario.alive = false;
+                        console.log('nope');
+                        var music = game.add.audio('die');
+                        this.theme.stop();
+                        music.play();
+                        this.mario.sprite.frameName = 'mario_dead';
+                        this.mario.sprite.objectMario.die();
+                        music.onStop.add(playInfo, this);
+                       // this.mario.sprite.body.velocity.setTo(0, 0);
 
-        }*/
+                        function playInfo() {
+
+                            game.level.lives--;
+                            if (game.level.lives == 0) {
+                                game.state.start("Over");
+                            } else {
+                                game.state.start("Info");
+                            }
+                            this.mario.sprite.objectMario.alive = true;
+                        }
+                    }
+
+                }*/
     },
     marioPrizeBoxHit: function (a, b) {
         console.log(b);
