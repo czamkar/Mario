@@ -1,12 +1,10 @@
 var Mario = function (x, y, game) {
-
     this.sprite = game.add.sprite(x, y, 'mario', 'mario_idle_01');
+
     this.sprite.animations.add('walkSmall', Phaser.Animation.generateFrameNames('mario_walk_', 0, 3, '', 2), 30, true);
     this.sprite.animations.add('walkBig', Phaser.Animation.generateFrameNames('mario_big_walk_', 0, 3, '', 2), 30, true);
-    // this.sprite.animations.add('jump', Phaser.Animation.generateFrameNames('mario_jump', 0, 3, '', 2), 30, true);
     this.sprite.animations.add('grow', ['mario_idle_01', 'mario_idle_01', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02', 'mario_idle_02', 'mario_idle_01', 'mario_idle_02'], 15, false);
- 
-    //this.sprite.animations.add('sMario', Phaser.Animation.generateFrameNames('Bman_S_f', 0, 7, '', 2), 30, true);
+
     this.sprite.anchor.setTo(0.5, 1);
     this.sprite.objectMario = this;
     this.size = false;
@@ -26,8 +24,6 @@ var Mario = function (x, y, game) {
 
     this.sprite.body.setSize(11, 16, 2, 0);
 
-
-    // this.sprite.body.bounce.y = 0.2;
 }
 Mario.prototype.controls = function (value) {
 
@@ -45,7 +41,6 @@ Mario.prototype.controls = function (value) {
                         }
                     }
                     if (!this.size) {
-                        console.log('tak');
                         this.sprite.animations.play('walkSmall');
                     } else {
                         this.sprite.animations.play('walkBig');
@@ -87,9 +82,6 @@ Mario.prototype.controls = function (value) {
 
             }
         } else {
-            //console.log('c');
-
-            console.log(value);
             if (!this.anComplete) {
                 this.growUp();
             }
@@ -153,7 +145,7 @@ Mario.prototype.small = function () {
 }
 Mario.prototype.die = function () {
     this.frozen = true;
-   this.sprite.body.allowGravity = false;
+    this.sprite.body.allowGravity = false;
     this.sprite.animations.stop();
     var tween = game.add.tween(this.sprite).to({
         y: [168, 260]

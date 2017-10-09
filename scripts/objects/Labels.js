@@ -6,7 +6,20 @@ Labels.prototype.createLabel = function () {
     this.marioLabel = game.add.bitmapText(8, 2, "marioFont", "MARIO", 12);
     this.marioLabel.fixedToCamera = true;
 
-    this.pointsText = game.add.bitmapText(8, 12, "marioFont", "000000", 12);
+    if (game.level.points != 0) {
+        if (game.level.points < 1000) {
+            this.pointsText = game.add.bitmapText(8, 12, "marioFont", "000" + game.level.points, 12);
+        } else if (game.level.points < 10000) {
+            this.pointsText = game.add.bitmapText(8, 12, "marioFont", "00" + game.level.points, 12);
+        } else if (game.level.points < 100000) {
+            this.pointsText = game.add.bitmapText(8, 12, "marioFont","0" + game.level.points, 12);
+        } else if (game.level.points < 1000000) {
+            this.pointsText = game.add.bitmapText(8, 12, "marioFont", game.level.points, 12);
+        }
+    } else {
+        this.pointsText = game.add.bitmapText(8, 12, "marioFont", "000000", 12);
+    }
+
     this.pointsText.fixedToCamera = true;
 
     this.coin = game.add.sprite(70, 14, 'mapElement', 'prize_box_coin_01');

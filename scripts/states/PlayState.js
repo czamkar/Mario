@@ -59,14 +59,12 @@ PlayState.prototype = {
 
         this.koopa = new Koopa(1700, 200, game);
 
-        console.log(this.walls);
-
         this.labels.time.text = "400";
         this.timeTotal = 400;
         this.time = game.time.create(false);
         this.time.loop(1000, this.updateCounter, this);
         this.time.start();
-        console.log(this.map);
+
         // this.map.mapLayers['collide'].debug = true;
 
         this.jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -75,7 +73,7 @@ PlayState.prototype = {
         game.physics.arcade.gravity.y = 500;
     },
     update: function () {
-        if (this.mario.sprite.y > 320) {
+        if (this.mario.sprite.y > 360) {
             this.mario.sprite.objectMario.alive = false;
             if (this.mario.sprite.body !== null) {
                 this.mario.sprite.body.destroy();
@@ -117,7 +115,6 @@ PlayState.prototype = {
                         alpha: [0.3, 1]
                     }, 200, Phaser.Easing.Linear.None, true, 0).repeat(10);
                     marioAlhpa.onComplete.add(function () {
-                        console.log('koniec repeat')
                         this.mario.sprite.alpha = 1;
                         this.mario.sprite.objectMario.inviolable = false;
                     }, this, true);
@@ -125,12 +122,12 @@ PlayState.prototype = {
                 }, this);
             }
             game.physics.arcade.collide(this.mario.sprite, this.PrizeBoxGroup, this.marioPrizeBoxHit, null, this);
-            game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.test, null, this);
+            game.physics.arcade.collide(this.mario.sprite, this.map.mapLayers['collide'], this.marioCollide, null, this);
             if (this.mushroom) {
                 if (this.mushroom.alive) {
                     game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['collide']);
                     game.physics.arcade.collide(this.mushrooms, this.walls);
-                    game.physics.arcade.collide(this.mushrooms, this.PrizeBoxGroup, this.test, null, this);
+                    game.physics.arcade.collide(this.mushrooms, this.PrizeBoxGroup);
                 }
                 game.physics.arcade.collide(this.mushrooms, this.map.mapLayers['ground']);
                 game.physics.arcade.overlap(this.mario.sprite, this.mushrooms, this.marioMushroomHit, null, this);
@@ -167,9 +164,8 @@ PlayState.prototype = {
             }
         }
     },
-    test: function (a, b) {
-        console.log('koniec');
-        console.log(b);
+    marioCollide: function (a, b) {
+        game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
         if (b.index === 4) {
             this.mario.sprite.animations.stop();
             if (!this.mario.sprite.objectMario.size) {
@@ -184,26 +180,24 @@ PlayState.prototype = {
             marioAlhpa2.onComplete.add(function () {
                 game.state.start("End");
             }, this, true);
-        }
-        game.physics.arcade.collide(this.goombas, b, this.wallGoombaHit, null, this);
+        } 
     },
     addPoints: function (points, sprite) {
-        console.log(sprite.key);
         if (sprite.key == "mapElement") {
-
             var point = game.add.bitmapText(sprite.x + 8, sprite.y - 16, "marioFont", points, 10);
         } else {
 
             var point = game.add.bitmapText(sprite.x, sprite.y, "marioFont", points, 10);
         }
-
         point.anchor.setTo(0.5, 0.5);
+
         var tween_points = game.add.tween(point).to({
             y: point.y - 20
         }, 150, Phaser.Easing.None, true);
         tween_points.onComplete.add(function () {
             point.kill();
         }, this, true);
+
         game.level.points += points;
         if (game.level.points < 1000) {
             this.labels.pointsText.text = "000" + game.level.points;
@@ -214,10 +208,9 @@ PlayState.prototype = {
         } else if (game.level.points < 1000000) {
             this.labels.pointsText.text = game.level.points;
         }
-
     },
     enemiesToAccelerate: function (marioX) {
-        if (marioX > 950 && marioX < 951) {
+        if (marioX > 950 && marioX < 955) {
 
             this.goombas.children[4].body.velocity.x = -30;
             this.goombas.children[5].body.velocity.x = -30;
@@ -252,7 +245,6 @@ PlayState.prototype = {
         }
         a.x += 8;
         a.scale.x = -1;
-        console.log(b);
         this.flagPole.forEach(function (a) {
             a.body.destroy();
         });
@@ -437,9 +429,7 @@ PlayState.prototype = {
             }
         }
         if (a.body.touching.right || a.body.touching.left) {
-            console.log(a);
             if (b.frameName != 'koopa_dead') {
-                console.log('b');
                 if (a.objectMario.size) {
                     a.y -= 1;
                     if (b.body.velocity.x > 0) {
@@ -460,7 +450,6 @@ PlayState.prototype = {
                     }
                 }
             } else {
-                console.log('b1');
                 if (b.body.velocity.x !== 0) {
                     if (a.body.touching.right) {
                         b.body.velocity.x = 130;
@@ -493,7 +482,6 @@ PlayState.prototype = {
 
     },
     playInfo: function () {
-        console.log(this.musicDie.isPlaying);
         game.level.lives--;
         if (game.level.lives == 0) {
             game.state.start("Over");
@@ -555,48 +543,38 @@ PlayState.prototype = {
 
             }
         }
-        /*
-                if (a.body.touching.up) {
-                    if (a.objectMario.size) {
-                        a.y -= 1;
-                        a.body.setSize(11, 16, 2, 0);
-                        a.body.velocity.x = 0;
-                        a.objectMario.inviolable = true;
-                        a.objectMario.size = false;
-                        a.objectMario.small();
-                    } else {
-                        //a.body.destroy();
-                        this.goombas.forEachAlive(function (a) {
-                            a.body.velocity.setTo(0);
-                        }, this);
-                        
-                        b.body.destroy();
-                        this.mario.sprite.objectMario.alive = false;
-                        console.log('nope');
-                        var music = game.add.audio('die');
-                        this.theme.stop();
-                        music.play();
-                        this.mario.sprite.frameName = 'mario_dead';
-                        this.mario.sprite.objectMario.die();
-                        music.onStop.add(playInfo, this);
-                       // this.mario.sprite.body.velocity.setTo(0, 0);
 
-                        function playInfo() {
+        if (a.body.touching.up) {
+            if (a.objectMario.size) {
+                a.y -= 1;
+                a.body.setSize(11, 16, 2, 0);
+                a.body.velocity.x = 0;
+                a.objectMario.inviolable = true;
+                a.objectMario.size = false;
+                a.objectMario.small();
+            } else {
+                //a.body.destroy();
+                this.goombas.forEachAlive(function (a) {
+                    a.body.destroy();
+                }, this);
 
-                            game.level.lives--;
-                            if (game.level.lives == 0) {
-                                game.state.start("Over");
-                            } else {
-                                game.state.start("Info");
-                            }
-                            this.mario.sprite.objectMario.alive = true;
-                        }
-                    }
+                a.body.velocity.y = 0;
+                this.mario.sprite.objectMario.alive = false;
 
-                }*/
+                this.theme.stop();
+
+                this.mario.sprite.frameName = 'mario_dead';
+                this.mario.sprite.objectMario.die();
+                this.musicDie.play();
+                this.musicDie.onStop.addOnce(this.playInfo, this);
+                // this.mario.sprite.body.velocity.setTo(0, 0);
+
+
+            }
+
+        }
     },
     marioPrizeBoxHit: function (a, b) {
-        console.log(b);
 
         if (a.body.touching.up && b.body.touching.down) {
             b.animations.stop();
@@ -637,7 +615,6 @@ PlayState.prototype = {
                 }, 200, Phaser.Easing.Bounce.InOut, true, 0, 0, true);
                 tween.onComplete.add(function () {
                     this.addPoints(200, b);
-                    // console.log(this.map.map.getTile(b.x/16, b.y/16, this.map.mapLayers['collide']).x, this.map.map.getTile(b.x/16, b.y/16, this.map.mapLayers['collide']).y);
                     this.map.map.removeTile(b.x / 16, b.y / 16, this.map.mapLayers['collide']);
                     this.map.map.putTile(43, this.map.mapLayers['collide'].getTileX(b.x), this.map.mapLayers['collide'].getTileY(b.y), this.map.mapLayers['collide']);
 
@@ -659,7 +636,7 @@ PlayState.prototype = {
                 tween2.onComplete.add(function () {
                     this.mushroom.alive = true;
                     this.mushroom.y -= 2;
-                    this.mushroom.body.velocity.x = 40;
+                    this.mushroom.body.velocity.x = 45;
                 }, this, true);
 
 
@@ -689,26 +666,21 @@ PlayState.prototype = {
         // console.log(this.mario.sprite.y);
         // console.log(this.koopa.body.velocit.x);
         // console.log(this.koopa.body.velocit.y);
-        // console.log(this.koopa.sprite.width);
-
-
-
-
-        game.debug.text('Mario  y:  ' + this.mario.sprite.y, 32, 88);
         // game.debug.text('koppa velo x:  ' + this.koopa.sprite.x, 32, 108);
 
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x + game.width / 2 + 16), 32, 148);
         // game.debug.text('Mario velo y:  ' + (this.mario.sprite.x - game.width / 2 + 16), 32, 168);
         // game.debug.cameraInfo(game.camera, 32, 32);
-        if (this.mushroom) {
-            game.debug.body(this.mushroom);
-        }
-        this.walls.forEach(function (a) {
-            game.debug.body(a);
-        }, this);
-        this.flagPole.forEach(function (a) {
-            game.debug.body(a);
-        }, this);
+        // if (this.mushroom) {
+        //     game.debug.body(this.mushroom);
+        //     game.debug.bodyInfo(this.mushroom, 16, 32);
+        // }
+        // this.PrizeBoxGroup.forEach(function (a) {
+        //     game.debug.body(a);
+        // }, this);
+        // this.flagPole.forEach(function (a) {
+        //     game.debug.body(a);
+        // }, this);
         // this.flags.forEach(function (a) {
         //     game.debug.body(a);
         // }, this);
