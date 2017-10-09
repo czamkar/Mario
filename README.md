@@ -1,3 +1,3 @@
 # Mario
-Sprawdź demo: 
+Demo: 
 http://www.jakubkaczmarek.ovh/mario/
