@@ -28,10 +28,12 @@ Labels.prototype.createLabel = function () {
 
     this.x = game.add.bitmapText(78, 13, "marioFont", "x", 9);
     this.x.fixedToCamera = true;
-    if (game.level.coins != 0) {
-        this.coinText = game.add.bitmapText(86, 12, "marioFont", "0" + game.level.coins, 12);
-    } else {
+    if (game.level.coins === 0) {
         this.coinText = game.add.bitmapText(86, 12, "marioFont", "00", 12);
+    } else if (game.level.coins < 10) {     
+        this.coinText = game.add.bitmapText(86, 12, "marioFont", "0" + game.level.coins, 12);
+    } else if (game.level.coins >= 10){
+        this.coinText = game.add.bitmapText(86, 12, "marioFont", game.level.coins, 12);
     }
     this.coinText.fixedToCamera = true;
 
