@@ -180,7 +180,7 @@ PlayState.prototype = {
             marioAlhpa2.onComplete.add(function () {
                 game.state.start("End");
             }, this, true);
-        } 
+        }
     },
     addPoints: function (points, sprite) {
         if (sprite.key == "mapElement") {
@@ -439,15 +439,22 @@ PlayState.prototype = {
                         b.scale.x = -1;
                         b.body.velocity.x = 30;
                     }
+                    a.objectMario.inviolable = true;
+                    a.objectMario.size = false;
                     a.objectMario.small();
                 } else {
-                    game.level.lives--;
+                    b.body.destroy();
+                    this.mario.sprite.objectMario.alive = false;
+
                     this.theme.stop();
-                    if (game.level.lives == 0) {
-                        game.state.start("Over");
-                    } else {
-                        game.state.start("Info");
-                    }
+
+                    this.mario.sprite.frameName = 'mario_dead';
+                    this.mario.sprite.objectMario.die();
+                    this.musicDie.play();
+                    this.musicDie.onStop.addOnce(this.playInfo, this);
+
+                    this.mario.sprite.body.velocity.setTo(0, 0);
+
                 }
             } else {
                 if (b.body.velocity.x !== 0) {
@@ -468,13 +475,17 @@ PlayState.prototype = {
                         }
                         // a.objectMario.size = false;
                     } else {
+                        b.body.destroy();
+                        this.mario.sprite.objectMario.alive = false;
+    
                         this.theme.stop();
-                        game.level.lives--;
-                        if (game.level.lives == 0) {
-                            game.state.start("Over");
-                        } else {
-                            game.state.start("Info");
-                        }
+    
+                        this.mario.sprite.frameName = 'mario_dead';
+                        this.mario.sprite.objectMario.die();
+                        this.musicDie.play();
+                        this.musicDie.onStop.addOnce(this.playInfo, this);
+    
+                        this.mario.sprite.body.velocity.setTo(0, 0);
                     }
                 }
             }
